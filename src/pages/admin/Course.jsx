@@ -86,7 +86,7 @@ const Course = () =>
                     className="course-question-box card m-3 text-dark"
                   >
                     <div className="card-header">
-                      <h5>
+                      <h5 className="d-flex justify-content-between align-items-center">
                         {question.question}
                         <BiTrash className="icon" onClick={() => dispatch(removeQuestion(currentExam.id, question.id))} />
                       </h5>
