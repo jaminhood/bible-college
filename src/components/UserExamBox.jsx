@@ -1,23 +1,20 @@
-import { Link } from "react-router-dom"
-import { parseISO, formatDistanceToNow } from "date-fns"
+import { Link } from "react-router-dom";
+import { parseISO, formatDistanceToNow } from "date-fns";
 
-const UserExamBox = ({ exam }) =>
-{
-  const { id, title, imgText, date } = exam
+const UserExamBox = ({ exam }) => {
+  const { id, title, imgText, date } = exam;
 
-  const newDate = (time) =>
-  {
-    let newTime = ``
-    if (time)
-    {
-      const newDate = parseISO(time)
-      const timePeriod = formatDistanceToNow(newDate)
-      newTime = `${timePeriod} to go`
+  const newDate = (time) => {
+    let newTime = ``;
+    if (time) {
+      const newDate = parseISO(time);
+      const timePeriod = formatDistanceToNow(newDate);
+      newTime = `${timePeriod} to go`;
     }
-    return newTime
-  }
+    return newTime;
+  };
 
-  const flexSpaceCls = `d-flex justify-content-between align-items-center`
+  const flexSpaceCls = `d-flex justify-content-between align-items-center`;
 
   return (
     <>
@@ -26,22 +23,18 @@ const UserExamBox = ({ exam }) =>
           <h2 className="display-3">{imgText}</h2>
         </div>
         <div className="card-body">
-          <h5 className={flexSpaceCls}>
-            {title}
-          </h5>
-          {
-            new Date(date).getTime() - new Date().getTime() > 0 ? (
-              <p className="m-0">{newDate(date)}</p>
-            ) : (
-              <Link to={`/admin/exam/${id}`}>
-                <button className="btn btn-success btn-sm">Start Exam</button>
-              </Link>
-            )
-          }
+          <h5 className={flexSpaceCls}>{title}</h5>
+          {new Date(date).getTime() - new Date().getTime() > 0 ? (
+            <p className="m-0">{newDate(date)}</p>
+          ) : (
+            <Link to={`/exam/${id}`}>
+              <button className="btn btn-success btn-sm">Start Exam</button>
+            </Link>
+          )}
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default UserExamBox
+export default UserExamBox;
