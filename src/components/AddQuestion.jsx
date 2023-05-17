@@ -1,0 +1,78 @@
+import { useState } from "react"
+import { Button, Col, Form, FormGroup, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap"
+
+const AddQuestion = ({ id, modal, toggle }) =>
+{
+  const [question, setQuestion] = useState()
+  const [optionOne, setOptionOne] = useState()
+  const [optionTwo, setOptionTwo] = useState()
+  const [optionThree, setOptionThree] = useState()
+  const [optionFour, setOptionFour] = useState()
+  const [correctAnswer, setCorrectAnswer] = useState()
+
+  const onQuestionChanged = e => setQuestion(e.target.value)
+  const onOptionOneChanged = e => setOptionOne(e.target.value)
+  const onOptionTwoChanged = e => setOptionTwo(e.target.value)
+  const onOptionThreeChanged = e => setOptionThree(e.target.value)
+  const onOptionFourChanged = e => setOptionFour(e.target.value)
+  const onCorrectAnswerChanged = e => setCorrectAnswer(e.target.value)
+
+  const canSubmit = Boolean(question)
+
+  const handleSubmit = e =>
+  {
+    e.preventDefault()
+
+    if (question)
+    {
+      console.log(question)
+    }
+  }
+  return (
+    <>
+      <Modal isOpen={modal} toggle={toggle}>
+        <Form onSubmit={handleSubmit}>
+          <ModalHeader>Add Question</ModalHeader>
+          <ModalBody>
+            <FormGroup>
+              <label htmlFor="question">Enter Question</label>
+              <textarea className="form-control mt-3" id="question" value={question} onInput={onQuestionChanged}></textarea>
+            </FormGroup>
+            <FormGroup>
+              <input className="form-control mt-3" value={optionOne} onInput={onOptionOneChanged} placeholder="Option" />
+            </FormGroup>
+            <FormGroup>
+              <input className="form-control mt-3" value={optionTwo} onInput={onOptionTwoChanged} placeholder="Option" />
+            </FormGroup>
+            <FormGroup>
+              <input className="form-control mt-3" value={optionThree} onInput={onOptionThreeChanged} placeholder="Option" />
+            </FormGroup>
+            <FormGroup>
+              <input className="form-control mt-3" value={optionFour} onInput={onOptionFourChanged} placeholder="Option" />
+            </FormGroup>
+            <FormGroup>
+              <Row>
+                <Col sm={4} className="d-flex align-items-center">
+                  <label htmlFor="correct">Correct Answer</label>
+                </Col>
+                <Col sm={8}>
+                  <input className="form-control mt-3" id="correct" value={correctAnswer} onInput={onCorrectAnswerChanged} placeholder="1" />
+                </Col>
+              </Row>
+            </FormGroup>
+          </ModalBody>
+          <ModalFooter>
+            <Button color="success" type="submit" disabled={!canSubmit} onClick={toggle}>
+              Add Question
+            </Button>
+            <Button color="secondary" onClick={toggle}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </Form>
+      </Modal>
+    </>
+  )
+}
+
+export default AddQuestion
