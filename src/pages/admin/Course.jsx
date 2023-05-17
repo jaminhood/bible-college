@@ -88,7 +88,7 @@ const Course = () =>
                     <div className="card-header">
                       <h5>
                         {question.question}
-                        <BiTrash className="icon" onClick={() => dispatch(removeQuestion(currentExam.id, id))} />
+                        <BiTrash className="icon" onClick={() => dispatch(removeQuestion(currentExam.id, question.id))} />
                       </h5>
                     </div>
                     <div className="card-body">

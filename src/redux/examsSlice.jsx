@@ -70,7 +70,7 @@ export const examsSlice = createSlice({
         state.exams = state.exams.map(
           (exam) =>
           {
-            if (exam.id !== action.payload.examId)
+            if (exam.id === action.payload.examId)
             {
               exam.questions = exam.questions.filter(
                 (question) => question.id !== action.payload.id
