@@ -6,23 +6,27 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  changeAnswer,
+import
+{
   finishedPaper,
   unfinishPaper,
 } from "../../redux/questionsSlice";
 import { getStorage, setStorage } from "../../helpers";
+import { changeAnswer } from "../../redux/examsSlice";
 
-export default function Exam() {
+export default function Exam ()
+{
   const navigate = useNavigate();
   const { id } = useParams();
 
   const exams = useSelector((state) => state.exams.exams);
 
-  const [currentExam, setCurrentExam] = useState(``);
+  const [currentExam, setCurrentExam] = useState(exams.find((e) => e.id === id));
 
-  useEffect(() => {
-    if (!exams.find((e) => e.id === id)) {
+  useEffect(() =>
+  {
+    if (!exams.find((e) => e.id === id))
+    {
       navigate("/create");
     }
     setCurrentExam(exams.find((e) => e.id === id));
@@ -41,21 +45,22 @@ export default function Exam() {
   const finished = useSelector((state) => state.questions.finished);
   const questions = useSelector((state) => state.questions.questions);
 
-  const student = useSelector((state) => state.user.student);
-
   const dispatch = useDispatch();
-  setStorage(`admin`, { username: ``, matricNo: `` });
 
-  const handleResult = (questionId, answerId) => {
-    dispatch(changeAnswer({ questionId, answerId }));
+  const handleAnswer = (questionId, answerId) =>
+  {
+    const ids = { examId: currentExam.id, questionId, answerId }
+    dispatch(changeAnswer(ids));
   };
 
-  const timeout = () => {
+  const timeout = () =>
+  {
     dispatch(unfinishPaper());
     navigate(`/`);
   };
 
-  const handleFinished = () => {
+  const handleFinished = () =>
+  {
     dispatch(finishedPaper(essay));
     setTimeout(timeout, 2000);
     setMinutes(0);
@@ -66,11 +71,13 @@ export default function Exam() {
     });
   };
 
-  const handleEssay = (essay) => {
+  const handleEssay = (essay) =>
+  {
     setEssay(essay);
   };
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     // if (getStorage(`student`).length < 1 || getStorage(`student`).username === ``)
     // {
     //   navigate(`/`)
@@ -110,11 +117,12 @@ export default function Exam() {
                       <div className="card-header text-center">
                         <p className="display-6 m-0">{currentExam.title}</p>
                       </div>
-                      {questions.map((question) => (
+                      {currentExam.questions.map((question) => (
                         <QuestionCard
                           question={question}
+                          examId={currentExam.id}
                           key={question.id}
-                          handleResult={handleResult}
+                          handleAnswer={handleAnswer}
                           handleEssay={handleEssay}
                         />
                       ))}

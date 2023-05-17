@@ -1,7 +1,8 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import {
+import
+{
   Button,
   Col,
   Form,
@@ -14,7 +15,8 @@ import {
 } from "reactstrap";
 import { addQuestion } from "../redux/examsSlice";
 
-const AddQuestion = ({ id, modal, toggle }) => {
+const AddQuestion = ({ id, modal, toggle }) =>
+{
   const [question, setQuestion] = useState(``);
   const [optionOne, setOptionOne] = useState(``);
   const [optionTwo, setOptionTwo] = useState(``);
@@ -26,38 +28,71 @@ const AddQuestion = ({ id, modal, toggle }) => {
 
   const dispatch = useDispatch();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e) =>
+  {
     e.preventDefault();
 
-    if (question) {
+    if (question)
+    {
       const examId = id;
-      const options = [
-        {
-          id: nanoid(),
-          answerText: optionOne,
-          isCorrect: correctAnswer === 1 ? true : false,
-          answered: false,
-        },
-        {
-          id: nanoid(),
-          answerText: optionTwo,
-          isCorrect: correctAnswer === 2 ? true : false,
-          answered: false,
-        },
-        {
-          id: nanoid(),
-          answerText: optionThree,
-          isCorrect: correctAnswer === 3 ? true : false,
-          answered: false,
-        },
-        {
-          id: nanoid(),
-          answerText: optionFour,
-          isCorrect: correctAnswer === 4 ? true : false,
-          answered: false,
-        },
-      ];
+
+      const options = []
+
+      if (optionOne)
+      {
+        options.push(
+          {
+            id: nanoid(),
+            answerText: optionOne,
+            isCorrect: correctAnswer === 1 ? true : false,
+            answered: false,
+          },
+        )
+      }
+
+      if (optionTwo)
+      {
+        options.push(
+          {
+            id: nanoid(),
+            answerText: optionTwo,
+            isCorrect: correctAnswer === 2 ? true : false,
+            answered: false,
+          },
+        )
+      }
+
+      if (optionThree)
+      {
+        options.push(
+          {
+            id: nanoid(),
+            answerText: optionThree,
+            isCorrect: correctAnswer === 3 ? true : false,
+            answered: false,
+          },
+        )
+      }
+
+      if (optionFour)
+      {
+        options.push(
+          {
+            id: nanoid(),
+            answerText: optionFour,
+            isCorrect: correctAnswer === 4 ? true : false,
+            answered: false,
+          },
+        )
+      }
+
       dispatch(addQuestion(question, options, examId));
+      setQuestion(``)
+      setOptionOne(``)
+      setOptionTwo(``)
+      setOptionThree(``)
+      setOptionFour(``)
+      setCorrectAnswer(0)
     }
   };
   return (

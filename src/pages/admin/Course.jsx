@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import DashboardContent from "./DashboardContent";
-import {
+import
+{
   Button,
   Col,
   Container,
@@ -9,31 +10,38 @@ import {
   ListGroupItem,
   Row,
 } from "reactstrap";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { days, months } from "../../helpers";
 import AddQuestion from "../../components/AddQuestion";
+import { BiTrash } from "react-icons/bi";
+import { removeQuestion } from "../../redux/examsSlice";
 
-const Course = () => {
+const Course = () =>
+{
   const navigate = useNavigate();
   const { id } = useParams();
 
   const questions = useSelector((state) => state.questions.questions);
   const exams = useSelector((state) => state.exams.exams);
+  const dispatch = useDispatch()
 
   const [currentExam, setCurrentExam] = useState(``);
   const [modal, setModal] = useState(false);
 
   const toggle = () => setModal(!modal);
 
-  useEffect(() => {
-    if (!exams.find((e) => e.id === id)) {
+  useEffect(() =>
+  {
+    if (!exams.find((e) => e.id === id))
+    {
       navigate("/create");
     }
     setCurrentExam(exams.find((e) => e.id === id));
   });
 
-  const getDate = () => {
+  const getDate = () =>
+  {
     const dateTime = new Date(currentExam.date);
     const day = days[dateTime.getDay()];
     const date = dateTime.getDate();
@@ -78,23 +86,26 @@ const Course = () => {
                     className="course-question-box card m-3 text-dark"
                   >
                     <div className="card-header">
-                      <h5>{question.question}</h5>
+                      <h5>
+                        {question.question}
+                        <BiTrash className="icon" onClick={() => dispatch(removeQuestion(currentExam.id, id))} />
+                      </h5>
                     </div>
                     <div className="card-body">
                       <ListGroup>
                         {question.options
                           ? question.options.map((answerOption) => (
-                              <ListGroupItem
-                                key={answerOption.id}
-                                className={
-                                  answerOption.isCorrect
-                                    ? `bg-success text-light`
-                                    : null
-                                }
-                              >
-                                {answerOption.answerText}
-                              </ListGroupItem>
-                            ))
+                            <ListGroupItem
+                              key={answerOption.id}
+                              className={
+                                answerOption.isCorrect
+                                  ? `bg-success text-light`
+                                  : null
+                              }
+                            >
+                              {answerOption.answerText}
+                            </ListGroupItem>
+                          ))
                           : null}
                       </ListGroup>
                     </div>
