@@ -6,11 +6,6 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import
-{
-  finishedPaper,
-  unfinishPaper,
-} from "../../redux/questionsSlice";
 import { getStorage, setStorage } from "../../helpers";
 import { changeAnswer, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
@@ -48,8 +43,8 @@ export default function Exam ()
   (getStorage(`time`).examId !== currentExam.id)
     ? setStorage(`time`, {
       examId: currentExam.id,
-      minutes: 0,
-      seconds: 9,
+      minutes: 40,
+      seconds: 0,
     }) : setStorage(`time`, {
       examId: currentExam.id,
       minutes: getStorage(`time`).minutes,
