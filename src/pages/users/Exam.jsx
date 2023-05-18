@@ -7,39 +7,27 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getStorage, setStorage } from "../../helpers";
-import { changeAnswer, scores, submitExam } from "../../redux/examsSlice";
+import { changeAnswer, exams, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
 
 export default function Exam ()
 {
-  const navigate = useNavigate();
+  // router
   const { id } = useParams();
-
-  const exams = useSelector((state) => state.exams.exams);
-
-  const [currentExam, setCurrentExam] = useState(exams.find((e) => e.id === id));
-
-  useEffect(() =>
-  {
-    if (!exams.find((e) => e.id === id))
-    {
-      navigate("/create");
-    }
-    setCurrentExam(exams.find((e) => e.id === id));
-  });
-
-
+  const navigate = useNavigate();
+  // redux
   const user = useSelector(activeUser);
-
+  const examsList = useSelector(exams);
+  // effect
   useEffect(() =>
   {
-    user.role === undefined
-      ? navigate(`/`)
-      : user.role === `student`
-        ? false
-        : navigate(`/admin/dashboard`);
+    user.role === undefined ? navigate(`/`) : user.role === `student` ? false : navigate(`/admin/dashboard`)
+    if (!examsList.find((e) => e.id === id))
+      navigate("/");
   });
-
+  // state
+  const [currentExam] = useState(examsList.find((e) => e.id === id));
+  // methods
   (getStorage(`time`).examId !== currentExam.id)
     ? setStorage(`time`, {
       examId: currentExam.id,
@@ -50,17 +38,10 @@ export default function Exam ()
       minutes: getStorage(`time`).minutes,
       seconds: getStorage(`time`).seconds,
     })
-
   const [minutes, setMinutes] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes);
   const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
-  const [essay, setEssay] = useState(``);
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
-  const [score, setScore] = useState(0);
-
-  const newScores = useSelector(scores);
-  const finished = useSelector((state) => state.questions.finished);
-  const questions = useSelector((state) => state.questions.questions);
 
   const dispatch = useDispatch();
 
@@ -78,20 +59,12 @@ export default function Exam ()
   const handleFinished = () =>
   {
     dispatch(submitExam(user.id, currentExam.id))
-    newScores.forEach(score =>
-    {
-      if (score.userId === user.id)
-      {
-        setScore(score.score.objective)
-      }
-    });
     setExamEnd(!examEnd)
     setTimeout(timeout, 2000);
   };
 
   const handleEssay = (questionId, essay) =>
   {
-    setEssay(essay);
     const ids = { userId: user.id, examId: currentExam.id, questionId, essayContent: essay, type: `essay` }
     dispatch(changeAnswer(ids));
   };
@@ -167,12 +140,9 @@ export default function Exam ()
                   ) : (
                     <div className="card">
                       <div className="card-body text-center">
-                        <h3 className="display-6 border-bottom pb-2">
+                        <h3 className="display-6">
                           Examination Completed Successfully
                         </h3>
-                        <p className="lead mt-2">
-                          Objective: {score} / {questions.length - 1}
-                        </p>
                       </div>
                     </div>
                   )}
