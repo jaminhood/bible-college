@@ -12,7 +12,7 @@ import
   unfinishPaper,
 } from "../../redux/questionsSlice";
 import { getStorage, setStorage } from "../../helpers";
-import { changeAnswer, submitExam } from "../../redux/examsSlice";
+import { changeAnswer, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
 
 export default function Exam ()
@@ -60,8 +60,10 @@ export default function Exam ()
   const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
   const [essay, setEssay] = useState(``);
   const [timerEnd, setTimerEnd] = useState(false);
+  const [examEnd, setExamEnd] = useState(false);
+  const [score, setScore] = useState(0);
 
-  const score = useSelector((state) => state.questions.score);
+  const newScores = useSelector(scores);
   const finished = useSelector((state) => state.questions.finished);
   const questions = useSelector((state) => state.questions.questions);
 
@@ -75,21 +77,21 @@ export default function Exam ()
 
   const timeout = () =>
   {
-    dispatch(unfinishPaper());
     navigate(`/`);
   };
 
   const handleFinished = () =>
   {
     dispatch(submitExam(user.id, currentExam.id))
-    // dispatch(finishedPaper(essay));
-    // setTimeout(timeout, 2000);
-    // setMinutes(0);
-    // setSeconds(0);
-    // setStorage(`time`, {
-    //   minutes: 0,
-    //   seconds: 0,
-    // });
+    newScores.forEach(score =>
+    {
+      if (score.userId === user.id)
+      {
+        setScore(score.score.objective)
+      }
+    });
+    setExamEnd(!examEnd)
+    setTimeout(timeout, 2000);
   };
 
   const handleEssay = (questionId, essay) =>
@@ -140,7 +142,7 @@ export default function Exam ()
             <Row>
               <Col md={6} lg={10} className="offset-md-3 offset-lg-1">
                 <div className="form-box w-100 bg-light text-dark p-3 rounded-3">
-                  {finished === false ? (
+                  {examEnd === false ? (
                     <div className="card">
                       <div className="card-header text-center">
                         <p className="display-6 m-0">{currentExam.title}</p>
@@ -184,13 +186,15 @@ export default function Exam ()
             </Row>
           </Container>
         </section>
-        <div className={`timer ${timerEnd ? `bg-danger` : `bg-success`} p-1 text-light text-center`}>
-          <p className="lead m-0">
-            {timerEnd ? `Time's Up, Please Submit` : (
-              <span>{minutes < 10 ? "0" + minutes : minutes} : {seconds < 10 ? "0" + seconds : seconds} Left</span>
-            )}
-          </p>
-        </div>
+        {examEnd === false && (
+          <div className={`timer ${timerEnd ? `bg-danger` : `bg-success`} p-1 text-light text-center`}>
+            <p className="lead m-0">
+              {timerEnd ? `Time's Up, Please Submit` : (
+                <span>{minutes < 10 ? "0" + minutes : minutes} : {seconds < 10 ? "0" + seconds : seconds} Left</span>
+              )}
+            </p>
+          </div>
+        )}
       </Page>
     </>
   );

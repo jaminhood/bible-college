@@ -45,10 +45,8 @@ export const examsSlice = createSlice({
         const { id, question, options, examId } = action.payload;
         const tmpExams = state.exams.map((exam) =>
         {
-          console.log(examId);
           if (exam.id === examId)
           {
-            console.log(exam);
             (options.length > 0)
               ? exam.questions.push({ id, question, options })
               : exam.questions.push({ id, question })
@@ -163,7 +161,6 @@ export const examsSlice = createSlice({
         {
           const tmpScores = state.scores.map(sc =>
           {
-            console.log(`here`)
             if (sc.userId === userId && sc.examId === examId)
             {
               sc.score = score
@@ -178,7 +175,6 @@ export const examsSlice = createSlice({
           state.scores.push({ userId, examId, score })
           setStorage(`scores`, state.scores);
         }
-        console.log(state.scores)
       },
       prepare: (userId, examId) =>
       {
@@ -192,5 +188,6 @@ export const examsSlice = createSlice({
 
 export const exams = (state) => state.exams.exams;
 export const answers = (state) => state.exams.answers;
+export const scores = (state) => state.exams.scores;
 export const { addExam, removeExam, addQuestion, removeQuestion, changeAnswer, submitExam } = examsSlice.actions;
 export default examsSlice.reducer;
