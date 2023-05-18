@@ -112,23 +112,6 @@ export const examsSlice = createSlice({
           state.answers.push({ userId, examId, questionId, answer, type })
           setStorage(`answers`, state.answers);
         }
-
-        // state.exams = state.exams.map(exam =>
-        // {
-        //   if (exam.id === examId)
-        //   {
-        //     exam.answerOptions.forEach(option =>
-        //     {
-        //       option.answers = false
-        //       if (option.id === answerId)
-        //       {
-        //         option.answers = true
-        //       }
-        //     })
-        //   }
-        //   return exam
-        // }
-        // )
       },
       prepare: (ids) =>
       {
@@ -154,44 +137,28 @@ export const examsSlice = createSlice({
 
         newOptions.forEach(option =>
         {
-          console.log(option.answer)
+          state.exams.forEach(exam =>
+          {
+            if (exam.id === option.examId)
+            {
+              exam.questions.forEach(question =>
+              {
+                if (question.id === option.questionId)
+                {
+                  question.options && question.options.forEach(opt =>
+                  {
+                    if (opt.id === option.answer && opt.isCorrect === true)
+                    {
+                      score.objective += 1
+                    }
+                  })
+                }
+              })
+            }
+          })
         })
 
-        // if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
-        // {
-        //   const tmpAns = state.answers.map(answer =>
-        //   {
-        //     if (answer.examId === examId && answer.questionId === questionId)
-        //     {
-        //       answer.answerId = answerId
-        //     }
-        //     return answer
-        //   })
-
-        //   state.answers = tmpAns
-        //   setStorage(`answers`, state.answers);
-        // } else
-        // {
-        //   state.answers.push({ examId, questionId, answerId })
-        //   setStorage(`answers`, state.answers);
-        // }
-
-        // state.exams = state.exams.map(exam =>
-        // {
-        //   if (exam.id === examId)
-        //   {
-        //     exam.answerOptions.forEach(option =>
-        //     {
-        //       option.answers = false
-        //       if (option.id === answerId)
-        //       {
-        //         option.answers = true
-        //       }
-        //     })
-        //   }
-        //   return exam
-        // }
-        // )
+        console.log(score)
       },
       prepare: (userId, examId) =>
       {
