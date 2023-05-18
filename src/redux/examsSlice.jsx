@@ -3,7 +3,8 @@ import { getStorage, setStorage } from "../helpers";
 
 const initialState = {
   exams: getStorage(`exams`),
-  answers: getStorage(`answers`)
+  answers: getStorage(`answers`),
+  scores: getStorage(`scores`),
 };
 
 export const examsSlice = createSlice({
@@ -158,7 +159,26 @@ export const examsSlice = createSlice({
           })
         })
 
-        console.log(score)
+        if (state.scores.filter(sc => sc.userId === userId && sc.examId === examId).length > 0)
+        {
+          const tmpScores = state.scores.map(sc =>
+          {
+            console.log(`here`)
+            if (sc.userId === userId && sc.examId === examId)
+            {
+              sc.score = score
+            }
+            return sc
+          })
+
+          state.scores = tmpScores
+          setStorage(`scores`, state.scores);
+        } else
+        {
+          state.scores.push({ userId, examId, score })
+          setStorage(`scores`, state.scores);
+        }
+        console.log(state.scores)
       },
       prepare: (userId, examId) =>
       {
