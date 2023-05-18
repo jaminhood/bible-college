@@ -91,7 +91,7 @@ export const examsSlice = createSlice({
     changeAnswer: {
       reducer: (state, action) =>
       {
-        const { userId, examId, questionId, answerId } = action.payload
+        const { userId, examId, questionId, answerId, essayContent, type } = action.payload
 
         if (state.answers.filter(answer => answer.userId === userId && answer.examId === examId && answer.questionId === questionId).length > 0)
         {
@@ -99,7 +99,7 @@ export const examsSlice = createSlice({
           {
             if (answer.userId === userId && answer.examId === examId && answer.questionId === questionId)
             {
-              answer.answer = answerId
+              answer.answer = type === `option` ? answerId : essayContent
             }
             return answer
           })
@@ -108,7 +108,8 @@ export const examsSlice = createSlice({
           setStorage(`answers`, state.answers);
         } else
         {
-          state.answers.push({ userId, examId, questionId, answerId })
+          const answer = type === `option` ? answerId : essayContent
+          state.answers.push({ userId, examId, questionId, answer, type })
           setStorage(`answers`, state.answers);
         }
 
@@ -131,9 +132,9 @@ export const examsSlice = createSlice({
       },
       prepare: (ids) =>
       {
-        const { userId, examId, questionId, answerId } = ids
+        const { userId, examId, questionId, answerId, essayContent, type } = ids
         return {
-          payload: { userId, examId, questionId, answerId }
+          payload: { userId, examId, questionId, answerId, essayContent, type }
         }
       }
     },
@@ -142,7 +143,14 @@ export const examsSlice = createSlice({
       {
         const { userId, examId } = action.payload
 
-        console.log(userId, examId)
+        const newAnswers = state.answers.filter(answer => answer.userId === userId && answer.examId === examId)
+
+        const score = {
+          objective: 0,
+          essay: newAnswers.filter(answer => answer.type === `essay`).map(answer => answer.answer)[0]
+        }
+
+        console.log(score)
 
         // if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
         // {
