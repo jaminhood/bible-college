@@ -91,6 +91,55 @@ export const examsSlice = createSlice({
     changeAnswer: {
       reducer: (state, action) =>
       {
+        const { userId, examId, questionId, answerId } = action.payload
+
+        if (state.answers.filter(answer => answer.userId === userId && answer.examId === examId && answer.questionId === questionId).length > 0)
+        {
+          const tmpAns = state.answers.map(answer =>
+          {
+            if (answer.userId === userId && answer.examId === examId && answer.questionId === questionId)
+            {
+              answer.answer = answerId
+            }
+            return answer
+          })
+
+          state.answers = tmpAns
+          setStorage(`answers`, state.answers);
+        } else
+        {
+          state.answers.push({ userId, examId, questionId, answerId })
+          setStorage(`answers`, state.answers);
+        }
+
+        // state.exams = state.exams.map(exam =>
+        // {
+        //   if (exam.id === examId)
+        //   {
+        //     exam.answerOptions.forEach(option =>
+        //     {
+        //       option.answers = false
+        //       if (option.id === answerId)
+        //       {
+        //         option.answers = true
+        //       }
+        //     })
+        //   }
+        //   return exam
+        // }
+        // )
+      },
+      prepare: (ids) =>
+      {
+        const { userId, examId, questionId, answerId } = ids
+        return {
+          payload: { userId, examId, questionId, answerId }
+        }
+      }
+    },
+    submitExam: {
+      reducer: (state, action) =>
+      {
         const { examId, questionId, answerId } = action.payload
 
         if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
@@ -142,5 +191,5 @@ export const examsSlice = createSlice({
 
 export const exams = (state) => state.exams.exams;
 export const answers = (state) => state.exams.answers;
-export const { addExam, removeExam, addQuestion, removeQuestion, changeAnswer } = examsSlice.actions;
+export const { addExam, removeExam, addQuestion, removeQuestion, changeAnswer, submitExam } = examsSlice.actions;
 export default examsSlice.reducer;

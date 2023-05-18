@@ -6,15 +6,16 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
 {
   const [essay, setEssay] = useState(``);
   const [answered, setAnswered] = useState(``);
+  const answers = getStorage(`answers`)
+  const user = getStorage(`active`)
 
   useEffect(() =>
   {
-    const answers = getStorage(`answers`)
     question.options && question.options.forEach(option =>
     {
       answers.forEach(answer =>
       {
-        if (answer.examId === examId && answer.questionId && answer.answer === option.id)
+        if (answer.userId === user.id && answer.examId === examId && answer.questionId && answer.answer === option.id)
         {
           setAnswered(option.id)
         }
@@ -28,7 +29,7 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
     const answers = getStorage(`answers`)
     answers.forEach(answer =>
     {
-      if (answer.examId === examId && answer.questionId === questionId && answer.answer === answerId && answer.type === `option`)
+      if (answer.userId === user.id && answer.examId === examId && answer.questionId === questionId && answer.answer === answerId && answer.type === `option`)
       {
         setAnswered(answerId)
       }
