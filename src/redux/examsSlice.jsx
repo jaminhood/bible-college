@@ -92,7 +92,6 @@ export const examsSlice = createSlice({
       reducer: (state, action) =>
       {
         const { examId, questionId, answerId } = action.payload
-        console.log(`got here`)
 
         if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
         {

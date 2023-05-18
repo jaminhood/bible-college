@@ -10,11 +10,11 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
   useEffect(() =>
   {
     const answers = getStorage(`answers`)
-    question.options.forEach(option =>
+    question.options && question.options.forEach(option =>
     {
       answers.forEach(answer =>
       {
-        if (answer.examId === examId && answer.questionId && answer.answerId === option.id)
+        if (answer.examId === examId && answer.questionId && answer.answer === option.id)
         {
           setAnswered(option.id)
         }
@@ -28,14 +28,20 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
     const answers = getStorage(`answers`)
     answers.forEach(answer =>
     {
-      if (answer.examId === examId && answer.questionId && answer.answerId === answerId)
+      if (answer.examId === examId && answer.questionId === questionId && answer.answer === answerId && answer.type === `option`)
       {
         setAnswered(answerId)
       }
     })
   }
 
-  useEffect(() => handleEssay(essay), [essay]);
+  const handleEssayInput = (e, questionId) =>
+  {
+    setEssay(e.target.value)
+    handleEssay(questionId, e.target.value)
+  }
+
+  // useEffect(() => handleEssay(essay), [essay]);
   return (
     <div className="card-body">
       <p className="lead">{question.question}</p>
@@ -56,7 +62,7 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
               id="essay"
               className="form-control"
               value={essay}
-              onInput={(e) => setEssay(e.target.value)}
+              onInput={(e) => handleEssayInput(e, question.id)}
               placeholder="minimum of 100 words.."
             ></textarea>
           </FormGroup>

@@ -12,7 +12,8 @@ import
   unfinishPaper,
 } from "../../redux/questionsSlice";
 import { getStorage, setStorage } from "../../helpers";
-import { changeAnswer } from "../../redux/examsSlice";
+import { changeAnswer, submitExam } from "../../redux/examsSlice";
+import { activeUser } from "../../redux/usersSlice";
 
 export default function Exam ()
 {
@@ -32,14 +33,33 @@ export default function Exam ()
     setCurrentExam(exams.find((e) => e.id === id));
   });
 
-  // const user = useSelector(activeUser)
-  // const allExams = useSelector(exams)
 
-  // useEffect(() => { (user.role === undefined) ? navigate(`/`) : (user.role === `student`) ? false : navigate(`/admin/dashboard`) })
+  const user = useSelector(activeUser);
 
-  const [minutes, setMinutes] = useState(getStorage(`time`).minutes);
-  const [seconds, setSeconds] = useState(getStorage(`time`).seconds);
+  useEffect(() =>
+  {
+    user.role === undefined
+      ? navigate(`/`)
+      : user.role === `student`
+        ? false
+        : navigate(`/admin/dashboard`);
+  });
+
+  (getStorage(`time`).examId !== currentExam.id)
+    ? setStorage(`time`, {
+      examId: currentExam.id,
+      minutes: 0,
+      seconds: 9,
+    }) : setStorage(`time`, {
+      examId: currentExam.id,
+      minutes: getStorage(`time`).minutes,
+      seconds: getStorage(`time`).seconds,
+    })
+
+  const [minutes, setMinutes] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes);
+  const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
   const [essay, setEssay] = useState(``);
+  const [timerEnd, setTimerEnd] = useState(false);
 
   const score = useSelector((state) => state.questions.score);
   const finished = useSelector((state) => state.questions.finished);
@@ -49,7 +69,7 @@ export default function Exam ()
 
   const handleAnswer = (questionId, answerId) =>
   {
-    const ids = { examId: currentExam.id, questionId, answerId }
+    const ids = { userId: user.id, examId: currentExam.id, questionId, answerId, type: `option` }
     dispatch(changeAnswer(ids));
   };
 
@@ -61,45 +81,53 @@ export default function Exam ()
 
   const handleFinished = () =>
   {
-    dispatch(finishedPaper(essay));
-    setTimeout(timeout, 2000);
-    setMinutes(0);
-    setSeconds(0);
-    setStorage(`time`, {
-      minutes: 0,
-      seconds: 0,
-    });
+    dispatch(submitExam(user.id, currentExam.id))
+    // dispatch(finishedPaper(essay));
+    // setTimeout(timeout, 2000);
+    // setMinutes(0);
+    // setSeconds(0);
+    // setStorage(`time`, {
+    //   minutes: 0,
+    //   seconds: 0,
+    // });
   };
 
-  const handleEssay = (essay) =>
+  const handleEssay = (questionId, essay) =>
   {
     setEssay(essay);
+    const ids = { userId: user.id, examId: currentExam.id, questionId, essayContent: essay, type: `essay` }
+    dispatch(changeAnswer(ids));
   };
 
   useEffect(() =>
   {
-    // if (getStorage(`student`).length < 1 || getStorage(`student`).username === ``)
-    // {
-    //   navigate(`/`)
-    // }
-    // let timer;
-    // if (minutes > 0 || seconds > 0) {
-    //   timer = setInterval(() => {
-    //     setSeconds(seconds - 1);
-    //     setStorage(`time`, {
-    //       minutes,
-    //       seconds: seconds - 1,
-    //     });
-    //     if (seconds === 0) {
-    //       setMinutes(minutes - 1);
-    //       setSeconds(59);
-    //     }
-    //   }, 1000);
-    // } else {
-    //   dispatch(finishedPaper());
-    //   setTimeout(timeout, 2000);
-    // }
-    // return () => clearInterval(timer);
+    let timer;
+    if (minutes > 0 || seconds > 0)
+    {
+      timer = setInterval(() =>
+      {
+        setSeconds(seconds - 1);
+        setStorage(`time`, {
+          examId: currentExam.id,
+          minutes,
+          seconds: seconds - 1,
+        });
+        if (seconds === 0)
+        {
+          setMinutes(minutes - 1);
+          setSeconds(59);
+        }
+      }, 1000);
+    } else
+    {
+      setTimerEnd(true)
+      setStorage(`time`, {
+        examId: currentExam.id,
+        minutes: 0,
+        seconds: 0,
+      })
+    }
+    return () => clearInterval(timer);
   });
   return (
     <>
@@ -156,10 +184,11 @@ export default function Exam ()
             </Row>
           </Container>
         </section>
-        <div className="timer bg-danger p-1 text-light text-center">
+        <div className={`timer ${timerEnd ? `bg-danger` : `bg-success`} p-1 text-light text-center`}>
           <p className="lead m-0">
-            {minutes < 10 ? "0" + minutes : minutes} :{" "}
-            {seconds < 10 ? "0" + seconds : seconds} Left
+            {timerEnd ? `Time's Up, Please Submit` : (
+              <span>{minutes < 10 ? "0" + minutes : minutes} : {seconds < 10 ? "0" + seconds : seconds} Left</span>
+            )}
           </p>
         </div>
       </Page>
