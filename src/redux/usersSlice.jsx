@@ -3,7 +3,7 @@ import { getStorage, setStorage } from "../helpers";
 
 
 const initialState = {
-  student: [],
+  student: getStorage(`students`),
   admin: [
     { id: 1, username: `jamin`, password: `jamin` }
   ],
@@ -21,14 +21,19 @@ const usersSlice = createSlice({
         if (!state.student.find(user => user.matricNumber === matricNumber))
         {
           state.student.push(action.payload)
+          setStorage(`students`, state.student)
+          state.active = (state.student.find(stud => stud.matricNumber === matricNumber))
+          setStorage(`active`, state.active)
+        } else
+        {
+          state.active = (state.student.find(stud => stud.matricNumber === matricNumber))
+          setStorage(`active`, state.active)
         }
-        state.active = { id: nanoid(), ...action.payload, role: `student` }
-        setStorage(`active`, state.active)
       },
       prepare: (name, matricNumber) =>
       {
         return {
-          payload: { id: nanoid(), name, matricNumber }
+          payload: { id: nanoid(), name, matricNumber, role: `student` }
         }
       }
     },
@@ -59,6 +64,7 @@ const usersSlice = createSlice({
 })
 
 export const activeUser = state => state.user.active
+export const students = state => state.user.student
 export const { studentLogin, adminLogin, logout } = usersSlice.actions
 
 export default usersSlice.reducer

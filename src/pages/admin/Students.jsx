@@ -1,39 +1,83 @@
 import { Table } from 'reactstrap'
 import DashboardContent from './DashboardContent'
 import { useSelector } from 'react-redux'
-import { exams } from '../../redux/examsSlice'
+import { exams, scores } from '../../redux/examsSlice'
+import { students } from '../../redux/usersSlice'
+import { nanoid } from '@reduxjs/toolkit'
 
 const Students = () =>
 {
   const examsList = useSelector(exams)
+  const studentsList = useSelector(students)
+  const scoresList = useSelector(scores)
 
-  console.log(examsList)
+  const display = studentsList.map(student =>
+  {
+    const id = nanoid()
+    const name = student.name
+    const matricNumber = student.matricNumber
+    const exams = []
+    scoresList.forEach(score =>
+    {
+      if (score.userId === student.id)
+      {
+        examsList.forEach(exam =>
+        {
+          if (exam.id === score.examId)
+          {
+            exams.push({
+              id: nanoid(),
+              exam: exam.title,
+              objective: score.score.objective,
+              essay: score.score.essay
+            })
+          }
+        })
+      }
+    })
+    return ({ id, name, matricNumber, exams })
+  })
+
   return (
     <DashboardContent title={`All Students`}>
       <h2 className='border-bottom pb-3 mb-3'>Students of Bible College Examination</h2>
       <div className="table-responsive">
+        <h5 className='border-bottom pb-3 mb-3'>Objective</h5>
         <Table className='table-bordered'>
-          <thead className='bg-dark text-light'>
-            <tr>
-              <th>S/N</th>
-              <th>Full Name</th>
-              <th>Matric Number</th>
-              {examsList.map(exam => (
-                <th key={exam.id}>{exam.title}</th>
-              ))}
-            </tr>
-          </thead>
           <tbody className='text-light'>
-            <tr>
-              <td>1</td>
-              <td>Michael Dipe</td>
-              <td>unilag/433/544</td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Michael Dipe</td>
-              <td>unilag/433/544</td>
-            </tr>
+            {display.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.name}</td>
+                <td>{item.matricNumber}</td>
+                {item.exams.map(exam => (
+                  <td key={exam.id} style={{ whiteSpace: `normal` }}>
+                    <p className='lead'>{exam.exam}</p>
+                    <p className='m-0'>{exam.objective}</p>
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+      <div className="table-responsive">
+        <h5 className='border-bottom pb-3 mb-3'>Essay</h5>
+        <Table className='table-bordered'>
+          <tbody className='text-light'>
+            {display.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.name}</td>
+                <td>{item.matricNumber}</td>
+                {item.exams.map(exam => (
+                  <td key={exam.id} style={{ whiteSpace: `normal` }}>
+                    <p className='lead'>{exam.exam}</p>
+                    <p className='m-0'>{exam.essay}</p>
+                  </td>
+                ))}
+              </tr>
+            ))}
           </tbody>
         </Table>
       </div>
