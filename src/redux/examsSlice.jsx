@@ -140,26 +140,28 @@ export const examsSlice = createSlice({
     submitExam: {
       reducer: (state, action) =>
       {
-        const { examId, questionId, answerId } = action.payload
+        const { userId, examId } = action.payload
 
-        if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
-        {
-          const tmpAns = state.answers.map(answer =>
-          {
-            if (answer.examId === examId && answer.questionId === questionId)
-            {
-              answer.answerId = answerId
-            }
-            return answer
-          })
+        console.log(userId, examId)
 
-          state.answers = tmpAns
-          setStorage(`answers`, state.answers);
-        } else
-        {
-          state.answers.push({ examId, questionId, answerId })
-          setStorage(`answers`, state.answers);
-        }
+        // if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
+        // {
+        //   const tmpAns = state.answers.map(answer =>
+        //   {
+        //     if (answer.examId === examId && answer.questionId === questionId)
+        //     {
+        //       answer.answerId = answerId
+        //     }
+        //     return answer
+        //   })
+
+        //   state.answers = tmpAns
+        //   setStorage(`answers`, state.answers);
+        // } else
+        // {
+        //   state.answers.push({ examId, questionId, answerId })
+        //   setStorage(`answers`, state.answers);
+        // }
 
         // state.exams = state.exams.map(exam =>
         // {
@@ -178,11 +180,10 @@ export const examsSlice = createSlice({
         // }
         // )
       },
-      prepare: (ids) =>
+      prepare: (userId, examId) =>
       {
-        const { examId, questionId, answerId } = ids
         return {
-          payload: { examId, questionId, answerId }
+          payload: { userId, examId }
         }
       }
     }

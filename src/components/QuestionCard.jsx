@@ -8,6 +8,7 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
   const [answered, setAnswered] = useState(``);
   const answers = getStorage(`answers`)
   const user = getStorage(`active`)
+  const [clicked, setClicked] = useState(false)
 
   useEffect(() =>
   {
@@ -21,7 +22,7 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
         }
       })
     })
-  })
+  }, [clicked])
 
   const handleClick = (questionId, answerId) =>
   {
@@ -34,6 +35,7 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
         setAnswered(answerId)
       }
     })
+    setClicked(!clicked)
   }
 
   const handleEssayInput = (e, questionId) =>
