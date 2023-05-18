@@ -150,7 +150,12 @@ export const examsSlice = createSlice({
           essay: newAnswers.filter(answer => answer.type === `essay`).map(answer => answer.answer)[0]
         }
 
-        console.log(score)
+        const newOptions = newAnswers.filter(answer => answer.type === `option`)
+
+        newOptions.forEach(option =>
+        {
+          console.log(option.answer)
+        })
 
         // if (state.answers.filter(answer => answer.examId === examId && answer.questionId === questionId).length > 0)
         // {
