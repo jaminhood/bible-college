@@ -4,8 +4,8 @@ import { Col, Container, Row } from "reactstrap";
 import bg from "../../assets/imgs/bg.jpg";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   getStorage,
   setStorage,
@@ -13,7 +13,7 @@ import {
   updateAnswer,
 } from "../../helpers";
 import { activeUser } from "../../redux/usersSlice";
-import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
+import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
 export default function Exam() {
@@ -32,23 +32,21 @@ export default function Exam() {
   });
   // state
   const [currentExam, setCurrentExam] = useState(``);
-  getStorage(`time`).examId !== currentExam.id
-    ? setStorage(`time`, {
-        examId: currentExam.id,
-        minutes: 40,
-        seconds: 0,
-      })
-    : setStorage(`time`, {
-        examId: currentExam.id,
-        minutes: getStorage(`time`).minutes,
-        seconds: getStorage(`time`).seconds,
-      });
-  const [minutes, setMinutes] = useState(
-    getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes
-  );
-  const [seconds, setSeconds] = useState(
-    getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds
-  );
+  // useEffect(() => {
+  //   getStorage(`time`).examId !== currentExam.id
+  //     ? setStorage(`time`, {
+  //         examId: currentExam.id,
+  //         minutes: 40,
+  //         seconds: 0,
+  //       })
+  //     : setStorage(`time`, {
+  //         examId: currentExam.id,
+  //         minutes: getStorage(`time`).minutes,
+  //         seconds: getStorage(`time`).seconds,
+  //       });
+  // }, []);
+  const [minutes, setMinutes] = useState(40);
+  const [seconds, setSeconds] = useState(0);
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
 
@@ -88,8 +86,6 @@ export default function Exam() {
   }, [getStorage(`exams`), getStorage(`answers`)]);
   // methods
 
-  const dispatch = useDispatch();
-
   const handleAnswer = async (questionId, answerId) => {
     const ids = {
       user: user.matricNumber,
@@ -105,9 +101,8 @@ export default function Exam() {
 
   const handleFinished = () => {
     submitExam({ user: user.matricNumber, examId: currentExam.id });
-    // dispatch(submitExam(user.id, currentExam.id));
-    // setExamEnd(!examEnd);
-    // setTimeout(timeout, 2000);
+    setExamEnd(!examEnd);
+    setTimeout(timeout, 2000);
   };
 
   const handleEssay = async (questionId, essay) => {
@@ -121,31 +116,35 @@ export default function Exam() {
     await updateAnswer(ids);
   };
 
+  let timer;
   useEffect(() => {
-    let timer;
-    if (minutes > 0 || seconds > 0) {
-      timer = setInterval(() => {
-        setSeconds(seconds - 1);
-        setStorage(`time`, {
-          examId: currentExam.id,
-          minutes,
-          seconds: seconds - 1,
-        });
-        if (seconds === 0) {
-          setMinutes(minutes - 1);
-          setSeconds(59);
-        }
-      }, 1000);
-    } else {
+    timer = setInterval(() => {
+      setStorage(`time`, {
+        minutes,
+        seconds,
+      });
+      console.log(`here`);
+      if (seconds === 0) {
+        setMinutes((prev) => prev - 1);
+        setSeconds(() => 59);
+      } else {
+        setSeconds((prev) => prev - 1);
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (minutes <= 0 || seconds <= 0) {
+      clearInterval(timer);
       setTimerEnd(true);
       setStorage(`time`, {
-        examId: currentExam.id,
         minutes: 0,
         seconds: 0,
       });
     }
-    return () => clearInterval(timer);
-  });
+  }, [minutes, seconds]);
+
   return (
     <>
       <Page title={`Exam`}>
