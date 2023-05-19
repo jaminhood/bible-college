@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStorage, setStorage, updateAnswer } from "../../helpers";
 import { changeAnswer, exams, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
 export default function Exam ()
@@ -30,6 +30,12 @@ export default function Exam ()
   const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
+
+
+  getDoc(doc(db, `exam`, id)).then(item =>
+  {
+    console.log(item)
+  })
 
   useEffect(() =>
   {
