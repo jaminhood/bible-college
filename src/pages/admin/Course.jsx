@@ -16,29 +16,35 @@ import { days, months } from "../../helpers";
 import AddQuestion from "../../components/AddQuestion";
 import { BiTrash } from "react-icons/bi";
 import { removeQuestion } from "../../redux/examsSlice";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const Course = () =>
 {
-  const navigate = useNavigate();
   const { id } = useParams();
 
-  const questions = useSelector((state) => state.questions.questions);
-  const exams = useSelector((state) => state.exams.exams);
-  const dispatch = useDispatch()
-
   const [currentExam, setCurrentExam] = useState(``);
-  const [modal, setModal] = useState(false);
-
-  const toggle = () => setModal(!modal);
 
   useEffect(() =>
   {
-    if (!exams.find((e) => e.id === id))
+    const q = query(collection(db, `exams`))
+    const unsubscribe = onSnapshot(q, querySnapshot =>
     {
-      navigate("/create");
-    }
-    setCurrentExam(exams.find((e) => e.id === id));
-  });
+      let examsArr = []
+      querySnapshot.forEach(doc =>
+      {
+        examsArr.push({ ...doc.data(), id: doc.id })
+      })
+      setCurrentExam(examsArr.find(exam => exam.id === id))
+    })
+    return () => unsubscribe()
+  }, [])
+
+  const dispatch = useDispatch()
+
+  const [modal, setModal] = useState(false);
+
+  const toggle = () => setModal(!modal);
 
   const getDate = () =>
   {
@@ -77,7 +83,7 @@ const Course = () =>
                 Add Question
               </Button>
             </h3>
-            <AddQuestion id={currentExam.id} modal={modal} toggle={toggle} />
+            <AddQuestion exam={currentExam} modal={modal} toggle={toggle} />
             <div className="questions-container overflow-y w-100">
               {currentExam.questions !== undefined &&
                 currentExam.questions.map((question) => (

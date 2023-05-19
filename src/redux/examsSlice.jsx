@@ -1,11 +1,31 @@
 import { createSlice, nanoid } from "@reduxjs/toolkit";
 import { getStorage, setStorage } from "../helpers";
+import { db } from "../config/firebase";
+import { addDoc, collection } from "firebase/firestore";
 
 const initialState = {
   exams: getStorage(`exams`),
   answers: getStorage(`answers`),
   scores: getStorage(`scores`),
 };
+
+const examSample = {
+  date: "2023-05-18T09:44",
+  imgText: "PH",
+  questions: [
+    {
+      id: nanoid(),
+      options: [{ id: nanoid(), answerText: "20", isCorrect: false, answered: false }],
+      question: "What is time"
+    }
+  ],
+  title: "Philosophy"
+}
+
+const addAnExam = async (exam) =>
+{
+  await addDoc(collection(db, `exams`), exam)
+}
 
 export const examsSlice = createSlice({
   name: `exams`,
@@ -15,12 +35,12 @@ export const examsSlice = createSlice({
       reducer: (state, action) =>
       {
         state.exams.push(action.payload);
-        setStorage(`exams`, state.exams);
+        addAnExam(action.payload)
       },
       prepare: (title, date, imgText) =>
       {
         return {
-          payload: { id: nanoid(), title, date, imgText, questions: [] },
+          payload: { title, date, imgText, questions: [] },
         };
       },
     },

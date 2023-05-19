@@ -1,35 +1,37 @@
 import { Col, Container, FormGroup, Row } from "reactstrap";
 import DashboardContent from "./DashboardContent";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { addExam } from "../../redux/examsSlice";
 import { useNavigate } from "react-router-dom";
+import { addAnExam } from "../../helpers";
 
-const CreateCourse = () => {
+const CreateCourse = () =>
+{
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   const [title, setTitle] = useState(``);
   const [date, setDate] = useState(``);
   const [imgText, setImgText] = useState(``);
 
-  useEffect(() => {
-    setImgText(title.slice(0, 2).toUpperCase());
-  }, [title]);
+  useEffect(() => { setImgText(title.slice(0, 2).toUpperCase()) }, [title]);
 
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onDateChanged = (e) => setDate(e.target.value);
 
   const canSend = Boolean(title) && Boolean(date) && Boolean(imgText);
 
-  const formSubmit = (e) => {
+  const formSubmit = async (e) =>
+  {
     e.preventDefault();
-    if (title && date && imgText) {
-      dispatch(addExam(title, date, imgText));
-      navigate(`/admin/dashboard`);
-      setDate(``);
-      setTitle(``);
-      setImgText(``);
+    if (title && date && imgText)
+    {
+      await addAnExam({ title, date, imgText, questions: [] })
+        .then(() =>
+        {
+          navigate(`/admin/dashboard`);
+          setDate(``);
+          setTitle(``);
+          setImgText(``);
+        })
     }
   };
 

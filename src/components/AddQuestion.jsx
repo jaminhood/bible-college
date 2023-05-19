@@ -1,6 +1,5 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { useState } from "react";
-import { useDispatch } from "react-redux";
 import
 {
   Button,
@@ -13,9 +12,9 @@ import
   ModalHeader,
   Row,
 } from "reactstrap";
-import { addQuestion } from "../redux/examsSlice";
+import { updateAnExam } from "../helpers";
 
-const AddQuestion = ({ id, modal, toggle }) =>
+const AddQuestion = ({ exam, modal, toggle }) =>
 {
   const [question, setQuestion] = useState(``);
   const [optionOne, setOptionOne] = useState(``);
@@ -26,16 +25,22 @@ const AddQuestion = ({ id, modal, toggle }) =>
 
   const canSubmit = Boolean(question);
 
-  const dispatch = useDispatch();
+  const reset = () =>
+  {
+    setQuestion(``)
+    setOptionOne(``)
+    setOptionTwo(``)
+    setOptionThree(``)
+    setOptionFour(``)
+    setCorrectAnswer(0)
+  }
 
-  const handleSubmit = (e) =>
+  const handleSubmit = async (e) =>
   {
     e.preventDefault();
 
     if (question)
     {
-      const examId = id;
-
       const options = []
 
       if (optionOne)
@@ -86,15 +91,12 @@ const AddQuestion = ({ id, modal, toggle }) =>
         )
       }
 
-      dispatch(addQuestion(question, options, examId));
-      setQuestion(``)
-      setOptionOne(``)
-      setOptionTwo(``)
-      setOptionThree(``)
-      setOptionFour(``)
-      setCorrectAnswer(0)
+      (options.length > 0)
+        ? await updateAnExam(exam, { id: nanoid(), question, options }).then(reset)
+        : await updateAnExam(exam, { id: nanoid(), question }).then(reset)
     }
   };
+
   return (
     <>
       <Modal isOpen={modal} toggle={toggle}>

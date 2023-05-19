@@ -3,7 +3,7 @@ import { BiPaperPlane } from 'react-icons/bi'
 import { Col, Container, FormGroup, Row } from 'reactstrap'
 import bg from '../../assets/imgs/bg.jpg'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { activeUser, studentLogin } from '../../redux/usersSlice'
@@ -43,6 +43,11 @@ export default function Home ()
                 <p className='lead mb-3'>GST102: Philosophy</p>
                 <p><strong>Note:</strong> Exams are to be submitted on or before 40 minutes after you press the start button, you are expected to make use of 25 minutes for the objective section and 15 minutes for the essay.</p>
                 <p className="lead mt-3">Good Luck</p>
+                <Link to={`/admin/login`}>
+                  <motion.button whileTap={{ scale: 1.1 }} className="btn btn-success btn-lg w-100" onClick={handleStart}>
+                  Admin Login
+                </motion.button>
+                </Link>
               </Col>
               <Col md={6}>
                 <FormGroup className='p-2'>

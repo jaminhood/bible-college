@@ -1,10 +1,30 @@
 import { Col, Container, Row } from "reactstrap";
 import DashboardContent from "./DashboardContent";
 import ExamBox from "../../components/ExamBox";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
-const Welcome = () => {
-  const exams = useSelector((state) => state.exams.exams);
+const Welcome = () =>
+{
+  const [exams, setExams] = useState([])
+
+  useEffect(() =>
+  {
+    const q = query(collection(db, `exams`))
+    const unsubscribe = onSnapshot(q, querySnapshot =>
+    {
+      console.log(`here`)
+      let examsArr = []
+      querySnapshot.forEach(doc =>
+      {
+        examsArr.push({ ...doc.data(), id: doc.id })
+      })
+      setExams(examsArr)
+    })
+    return () => unsubscribe()
+  }, [])
+
   return (
     <>
       <DashboardContent title={`Dashboard`}>
