@@ -9,6 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStorage, setStorage } from "../../helpers";
 import { changeAnswer, exams, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
+import { collection, onSnapshot, query } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 export default function Exam ()
 {
@@ -17,16 +19,30 @@ export default function Exam ()
   const navigate = useNavigate();
   // redux
   const user = useSelector(activeUser);
-  const examsList = useSelector(exams);
   // effect
   useEffect(() =>
   {
     user.role === undefined ? navigate(`/`) : user.role === `student` ? false : navigate(`/admin/dashboard`)
-    if (!examsList.find((e) => e.id === id))
-      navigate("/");
   });
   // state
-  const [currentExam] = useState(examsList.find((e) => e.id === id));
+  const [currentExam, setCurrentExam] = useState(``);
+
+  useEffect(() =>
+  {
+    const q = query(collection(db, `exams`))
+    const unsubscribe = onSnapshot(q, querySnapshot =>
+    {
+      let examsArr = []
+      querySnapshot.forEach(doc =>
+      {
+        examsArr.push({ ...doc.data(), id: doc.id })
+      })
+      if (!examsArr.find((e) => e.id === id))
+        navigate("/");
+      setCurrentExam(examsArr.find(exam => exam.id === id))
+    })
+    return () => unsubscribe()
+  }, []);
   // methods
   (getStorage(`time`).examId !== currentExam.id)
     ? setStorage(`time`, {
@@ -51,10 +67,7 @@ export default function Exam ()
     dispatch(changeAnswer(ids));
   };
 
-  const timeout = () =>
-  {
-    navigate(`/`);
-  };
+  const timeout = () => navigate(`/`)
 
   const handleFinished = () =>
   {
@@ -115,7 +128,7 @@ export default function Exam ()
                       <div className="card-header text-center">
                         <p className="display-6 m-0">{currentExam.title}</p>
                       </div>
-                      {currentExam.questions.map((question) => (
+                      {currentExam.questions !== undefined && currentExam.questions.map((question) => (
                         <QuestionCard
                           question={question}
                           examId={currentExam.id}

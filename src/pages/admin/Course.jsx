@@ -1,21 +1,18 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DashboardContent from "./DashboardContent";
 import
 {
   Button,
   Col,
   Container,
-  FormGroup,
   ListGroup,
   ListGroupItem,
   Row,
 } from "reactstrap";
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { days, months, removeAQuestion } from "../../helpers";
 import AddQuestion from "../../components/AddQuestion";
 import { BiTrash } from "react-icons/bi";
-import { removeQuestion } from "../../redux/examsSlice";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
@@ -39,8 +36,6 @@ const Course = () =>
     })
     return () => unsubscribe()
   }, [])
-
-  const dispatch = useDispatch()
 
   const [modal, setModal] = useState(false);
 
