@@ -57,7 +57,7 @@ export default function Exam ()
       setStorage(`answers`, answersArr)
     })
     return () => unsubscribe()
-  }, []);
+  }, [getStorage(`exams`), getStorage(`answers`)]);
   // methods
   (getStorage(`time`).examId !== currentExam.id)
     ? setStorage(`time`, {
