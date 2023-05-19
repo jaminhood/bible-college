@@ -5,27 +5,25 @@ import { activeUser } from "../redux/usersSlice";
 import { scores } from "../redux/examsSlice";
 import { useState } from "react";
 
-const UserExamBox = ({ exam }) =>
-{
+const UserExamBox = ({ exam }) => {
   const { id, title, imgText, date } = exam;
 
-  const user = useSelector(activeUser)
-  const userScores = useSelector(scores)
+  const user = useSelector(activeUser);
+  const userScores = useSelector(scores);
 
-  let done = false
+  let done = false;
 
-  const userScore = userScores.find(sc => sc.userId === user.id && sc.examId === exam.id)
+  const userScore = userScores.find(
+    (sc) => sc.userId === user.id && sc.examId === exam.id
+  );
 
-  if (userScore)
-  {
-    done = true
+  if (userScore) {
+    done = true;
   }
 
-  const newDate = (time) =>
-  {
+  const newDate = (time) => {
     let newTime = ``;
-    if (time)
-    {
+    if (time) {
       const newDate = parseISO(time);
       const timePeriod = formatDistanceToNow(newDate);
       newTime = `${timePeriod} to go`;
@@ -45,15 +43,15 @@ const UserExamBox = ({ exam }) =>
           <h5 className={flexSpaceCls}>{title}</h5>
           {new Date(date).getTime() - new Date().getTime() > 0 ? (
             <p className="m-0">{newDate(date)}</p>
-          ) : done === true
-            ? (
-              <button className="btn btn-success btn-sm" disabled>Exam Ended</button>
-            )
-            : (
-              <Link to={`/exam/${id}`}>
-                <button className="btn btn-success btn-sm">Start Exam</button>
-              </Link>
-            )}
+          ) : done === true ? (
+            <button className="btn btn-success btn-sm" disabled>
+              Exam Ended
+            </button>
+          ) : (
+            <Link to={`/exam/${id}`}>
+              <button className="btn btn-success btn-sm">Start Exam</button>
+            </Link>
+          )}
         </div>
       </div>
     </>

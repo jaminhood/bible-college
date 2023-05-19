@@ -9,35 +9,30 @@ import { useEffect, useState } from "react";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const ExamsList = () =>
-{
+const ExamsList = () => {
   const navigate = useNavigate();
 
   const user = useSelector(activeUser);
-  const [allExams, setAllExams] = useState([])
+  const [allExams, setAllExams] = useState([]);
 
-  useEffect(() =>
-  {
-    const q = query(collection(db, `exams`))
-    const unsubscribe = onSnapshot(q, querySnapshot =>
-    {
-      let examsArr = []
-      querySnapshot.forEach(doc =>
-      {
-        examsArr.push({ ...doc.data(), id: doc.id })
-      })
-      setAllExams(examsArr)
-    })
-    return () => unsubscribe()
-  }, [])
+  useEffect(() => {
+    const q = query(collection(db, `exams`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let examsArr = [];
+      querySnapshot.forEach((doc) => {
+        examsArr.push({ ...doc.data(), id: doc.id });
+      });
+      setAllExams(examsArr);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     user.role === undefined
       ? navigate(`/`)
       : user.role === `student`
-        ? false
-        : navigate(`/admin/dashboard`);
+      ? false
+      : navigate(`/admin/dashboard`);
   });
 
   const flexSpaceCls = `d-flex justify-content-between align-items-center`;
