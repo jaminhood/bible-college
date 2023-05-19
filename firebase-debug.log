@@ -294,3 +294,46 @@ Before we get started, keep in mind:
     at processTicksAndRejections (node:internal/process/task_queues:96:5)
 [error] 
 [error] Error: Failed to get Firebase project bible-college-2f710. Please make sure the project exists and your account has permission to access it.
+[debug] [2023-05-19T15:31:51.489Z] ----------------------------------------------------------------------
+[debug] [2023-05-19T15:31:51.493Z] Command:       /usr/local/bin/firebase /Users/michael/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/bin/firebase init
+[debug] [2023-05-19T15:31:51.493Z] CLI Version:   11.8.0
+[debug] [2023-05-19T15:31:51.494Z] Platform:      darwin
+[debug] [2023-05-19T15:31:51.494Z] Node Version:  v16.16.0
+[debug] [2023-05-19T15:31:51.508Z] Time:          Fri May 19 2023 16:31:51 GMT+0100 (West Africa Standard Time)
+[debug] [2023-05-19T15:31:51.508Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-05-19T15:31:51.674Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-05-19T15:31:51.679Z] > authorizing via signed-in user (ogundipeibukun51@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/michael/ReactProjects/bible-college
+
+Before we get started, keep in mind:
+
+  * You are initializing within an existing Firebase project directory
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2023-05-19T15:32:01.756Z] Using project from CLI flag: bible-college-2f710
+[debug] [2023-05-19T15:32:01.773Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/bible-college-2f710 [none]
+[debug] [2023-05-19T15:32:02.693Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/bible-college-2f710 403
+[debug] [2023-05-19T15:32:02.696Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/bible-college-2f710 {"error":{"code":403,"message":"The caller does not have permission","status":"PERMISSION_DENIED"}}
+[debug] [2023-05-19T15:32:02.700Z] HTTP Error: 403, The caller does not have permission
+[debug] [2023-05-19T15:32:02.708Z] FirebaseError: HTTP Error: 403, The caller does not have permission
+    at responseToError (/Users/michael/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/responseToError.js:49:12)
+    at RetryOperation._fn (/Users/michael/.cache/firebase/tools/lib/node_modules/firebase-tools/lib/apiv2.js:288:77)
+    at processTicksAndRejections (node:internal/process/task_queues:96:5)
+[error] 
+[error] Error: Failed to get Firebase project bible-college-2f710. Please make sure the project exists and your account has permission to access it.
