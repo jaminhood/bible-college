@@ -45,8 +45,8 @@ export default function Exam() {
   //         seconds: getStorage(`time`).seconds,
   //       });
   // }, []);
-  const [minutes, setMinutes] = useState(40);
-  const [seconds, setSeconds] = useState(0);
+  const [minutes, setMinutes] = useState(getStorage(`time`).minutes || 40);
+  const [seconds, setSeconds] = useState(getStorage(`time`).seconds || 0);
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
 
@@ -118,30 +118,35 @@ export default function Exam() {
 
   let timer;
   useEffect(() => {
+    setStorage(`time`, {
+      minutes: 40,
+      seconds: 0,
+    });
     timer = setInterval(() => {
+      if (seconds <= 0) {
+        //   setMinutes((prev) => prev - 1);
+        setSeconds(59);
+        // } else {
+      } else {
+        setSeconds((prev) => prev - 1);
+      }
+      console.log(seconds);
       setStorage(`time`, {
         minutes,
         seconds,
       });
-      console.log(`here`);
-      if (seconds === 0) {
-        setMinutes((prev) => prev - 1);
-        setSeconds(() => 59);
-      } else {
-        setSeconds((prev) => prev - 1);
-      }
     }, 1000);
-    return () => clearInterval(timer);
+    // return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    if (minutes <= 0 || seconds <= 0) {
+    if (minutes <= 0 && seconds <= 0) {
       clearInterval(timer);
       setTimerEnd(true);
-      setStorage(`time`, {
-        minutes: 0,
-        seconds: 0,
-      });
+      // setStorage(`time`, {
+      //   minutes: 0,
+      //   seconds: 0,
+      // });
     }
   }, [minutes, seconds]);
 
