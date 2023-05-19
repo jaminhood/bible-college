@@ -14,7 +14,6 @@ const Welcome = () =>
     const q = query(collection(db, `exams`))
     const unsubscribe = onSnapshot(q, querySnapshot =>
     {
-      console.log(`here`)
       let examsArr = []
       querySnapshot.forEach(doc =>
       {

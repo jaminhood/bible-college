@@ -64,3 +64,8 @@ export const removeAQuestion = async (exam, question) =>
     questions: tmpQuestions
   })
 }
+
+export const addStudent = async (student) =>
+{
+  await addDoc(collection(db, `students`), student)
+}

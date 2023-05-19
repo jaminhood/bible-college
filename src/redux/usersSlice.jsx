@@ -17,23 +17,13 @@ const usersSlice = createSlice({
     studentLogin: {
       reducer: (state, action) =>
       {
-        const { matricNumber } = action.payload
-        if (!state.student.find(user => user.matricNumber === matricNumber))
-        {
-          state.student.push(action.payload)
-          setStorage(`students`, state.student)
-          state.active = (state.student.find(stud => stud.matricNumber === matricNumber))
-          setStorage(`active`, state.active)
-        } else
-        {
-          state.active = (state.student.find(stud => stud.matricNumber === matricNumber))
-          setStorage(`active`, state.active)
-        }
+        state.active = action.payload
+        setStorage(`active`, state.active)
       },
       prepare: (name, matricNumber) =>
       {
         return {
-          payload: { id: nanoid(), name, matricNumber, role: `student` }
+          payload: {name, matricNumber, role: `student` }
         }
       }
     },

@@ -7,7 +7,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { activeUser, studentLogin } from '../../redux/usersSlice'
-import { setStorage } from '../../helpers'
+import { collection, onSnapshot, query } from 'firebase/firestore'
+import { db } from '../../config/firebase'
+import { addStudent } from '../../helpers'
 
 export default function Home ()
 {
@@ -20,14 +22,41 @@ export default function Home ()
 
   const [name, setName] = useState(``)
   const [matricNumber, setMatricNumber] = useState(``)
+  const [students, setStudents] = useState([])
+
+  const getStudents = () =>
+  {
+    const q = query(collection(db, `students`))
+    const unsubscribe = onSnapshot(q, querySnapshot =>
+    {
+      let studentsArr = []
+      querySnapshot.forEach(doc =>
+      {
+        studentsArr.push({ ...doc.data(), id: doc.id })
+      })
+      setStudents(studentsArr)
+    })
+    return () => unsubscribe()
+  }
+
+  useEffect(() => { getStudents() }, [students])
 
   const canSend = Boolean(name) && Boolean(matricNumber)
 
-  const handleStart = () =>
+  const handleStart = async () =>
   {
     if (name && matricNumber)
     {
-      dispatch(studentLogin(name, matricNumber))
+      const isStudentInDb = students.find(student => student.matricNumber === matricNumber)
+      if (!isStudentInDb)
+      {
+        await addStudent({ name, matricNumber, role: `student` })
+          .then(() =>
+          {
+            dispatch(studentLogin(name, matricNumber))
+          })
+      }
+      dispatch(studentLogin(isStudentInDb.name, isStudentInDb.matricNumber))
       navigate(`/exam-list`)
     }
   }
@@ -45,8 +74,8 @@ export default function Home ()
                 <p className="lead mt-3">Good Luck</p>
                 <Link to={`/admin/login`}>
                   <motion.button whileTap={{ scale: 1.1 }} className="btn btn-success btn-lg w-100" onClick={handleStart}>
-                  Admin Login
-                </motion.button>
+                    Admin Login
+                  </motion.button>
                 </Link>
               </Col>
               <Col md={6}>
