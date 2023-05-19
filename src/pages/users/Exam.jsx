@@ -7,126 +7,134 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getStorage, setStorage, updateAnswer } from "../../helpers";
-import { changeAnswer, exams, scores, submitExam } from "../../redux/examsSlice";
+import {
+  changeAnswer,
+  exams,
+  scores,
+  submitExam,
+} from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
 import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-export default function Exam ()
-{
+export default function Exam() {
   // router
   const { id } = useParams();
   const navigate = useNavigate();
   // redux
   const user = useSelector(activeUser);
 
-  useEffect(() =>
-  {
-    user.role === undefined ? navigate(`/`) : user.role === `student` ? false : navigate(`/admin/dashboard`)
+  useEffect(() => {
+    user.role === undefined
+      ? navigate(`/`)
+      : user.role === `student`
+      ? false
+      : navigate(`/admin/dashboard`);
   });
   // state
   const [currentExam, setCurrentExam] = useState(``);
-  const [minutes, setMinutes] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes);
-  const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
+  getStorage(`time`).examId !== currentExam.id
+    ? setStorage(`time`, {
+        examId: currentExam.id,
+        minutes: 40,
+        seconds: 0,
+      })
+    : setStorage(`time`, {
+        examId: currentExam.id,
+        minutes: getStorage(`time`).minutes,
+        seconds: getStorage(`time`).seconds,
+      });
+  const [minutes, setMinutes] = useState(
+    getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes
+  );
+  const [seconds, setSeconds] = useState(
+    getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds
+  );
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
 
+  getDoc(doc(db, `exam`, id)).then((item) => {
+    console.log(item);
+  });
 
-  getDoc(doc(db, `exam`, id)).then(item =>
-  {
-    console.log(item)
-  })
+  useEffect(() => {
+    let q = query(collection(db, `exams`));
+    let unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let examsArr = [];
+      querySnapshot.forEach((doc) => {
+        examsArr.push({ ...doc.data(), id: doc.id });
+      });
+      if (!examsArr.find((e) => e.id === id)) navigate("/");
+      setCurrentExam(examsArr.find((exam) => exam.id === id));
+    });
 
-  useEffect(() =>
-  {
-    let q = query(collection(db, `exams`))
-    let unsubscribe = onSnapshot(q, querySnapshot =>
-    {
-      let examsArr = []
-      querySnapshot.forEach(doc =>
-      {
-        examsArr.push({ ...doc.data(), id: doc.id })
-      })
-      if (!examsArr.find((e) => e.id === id))
-        navigate("/");
-      setCurrentExam(examsArr.find(exam => exam.id === id))
-    })
-
-    q = query(collection(db, `answers`))
-    unsubscribe = onSnapshot(q, querySnapshot =>
-    {
-      let answersArr = []
-      querySnapshot.forEach(doc =>
-      {
-        answersArr.push({ ...doc.data(), id: doc.id })
-      })
-      setStorage(`answers`, answersArr)
-    })
-    return () => unsubscribe()
+    q = query(collection(db, `answers`));
+    unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let answersArr = [];
+      querySnapshot.forEach((doc) => {
+        answersArr.push({ ...doc.data(), id: doc.id });
+      });
+      setStorage(`answers`, answersArr);
+    });
+    return () => unsubscribe();
   }, [getStorage(`exams`), getStorage(`answers`)]);
   // methods
-  (getStorage(`time`).examId !== currentExam.id)
-    ? setStorage(`time`, {
-      examId: currentExam.id,
-      minutes: 40,
-      seconds: 0,
-    }) : setStorage(`time`, {
-      examId: currentExam.id,
-      minutes: getStorage(`time`).minutes,
-      seconds: getStorage(`time`).seconds,
-    })
 
   const dispatch = useDispatch();
 
-  const handleAnswer = async (questionId, answerId) =>
-  {
-    const ids = { user: user.matricNumber, examId: currentExam.id, questionId, answerId, type: `option` }
-    await updateAnswer(ids)
+  const handleAnswer = async (questionId, answerId) => {
+    const ids = {
+      user: user.matricNumber,
+      examId: currentExam.id,
+      questionId,
+      answerId,
+      type: `option`,
+    };
+    await updateAnswer(ids);
     // dispatch(changeAnswer(ids));
   };
 
-  const timeout = () => navigate(`/`)
+  const timeout = () => navigate(`/`);
 
-  const handleFinished = () =>
-  {
-    dispatch(submitExam(user.id, currentExam.id))
-    setExamEnd(!examEnd)
+  const handleFinished = () => {
+    dispatch(submitExam(user.id, currentExam.id));
+    setExamEnd(!examEnd);
     setTimeout(timeout, 2000);
   };
 
-  const handleEssay = (questionId, essay) =>
-  {
-    const ids = { userId: user.id, examId: currentExam.id, questionId, essayContent: essay, type: `essay` }
+  const handleEssay = (questionId, essay) => {
+    const ids = {
+      userId: user.id,
+      examId: currentExam.id,
+      questionId,
+      essayContent: essay,
+      type: `essay`,
+    };
     dispatch(changeAnswer(ids));
   };
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     let timer;
-    if (minutes > 0 || seconds > 0)
-    {
-      timer = setInterval(() =>
-      {
+    if (minutes > 0 || seconds > 0) {
+      timer = setInterval(() => {
         setSeconds(seconds - 1);
         setStorage(`time`, {
           examId: currentExam.id,
           minutes,
           seconds: seconds - 1,
         });
-        if (seconds === 0)
-        {
+        if (seconds === 0) {
           setMinutes(minutes - 1);
           setSeconds(59);
         }
       }, 1000);
-    } else
-    {
-      setTimerEnd(true)
+    } else {
+      setTimerEnd(true);
       setStorage(`time`, {
         examId: currentExam.id,
         minutes: 0,
         seconds: 0,
-      })
+      });
     }
     return () => clearInterval(timer);
   });
@@ -146,15 +154,16 @@ export default function Exam ()
                       <div className="card-header text-center">
                         <p className="display-6 m-0">{currentExam.title}</p>
                       </div>
-                      {currentExam.questions !== undefined && currentExam.questions.map((question) => (
-                        <QuestionCard
-                          question={question}
-                          examId={currentExam.id}
-                          key={question.id}
-                          handleAnswer={handleAnswer}
-                          handleEssay={handleEssay}
-                        />
-                      ))}
+                      {currentExam.questions !== undefined &&
+                        currentExam.questions.map((question) => (
+                          <QuestionCard
+                            question={question}
+                            examId={currentExam.id}
+                            key={question.id}
+                            handleAnswer={handleAnswer}
+                            handleEssay={handleEssay}
+                          />
+                        ))}
                       <div className="card-footer">
                         <div className="w-100 d-flex justify-content-end align-items-center">
                           <motion.button
@@ -183,10 +192,19 @@ export default function Exam ()
           </Container>
         </section>
         {examEnd === false && (
-          <div className={`timer ${timerEnd ? `bg-danger` : `bg-success`} p-1 text-light text-center`}>
+          <div
+            className={`timer ${
+              timerEnd ? `bg-danger` : `bg-success`
+            } p-1 text-light text-center`}
+          >
             <p className="lead m-0">
-              {timerEnd ? `Time's Up, Please Submit` : (
-                <span>{minutes < 10 ? "0" + minutes : minutes} : {seconds < 10 ? "0" + seconds : seconds} Left</span>
+              {timerEnd ? (
+                `Time's Up, Please Submit`
+              ) : (
+                <span>
+                  {minutes < 10 ? "0" + minutes : minutes} :{" "}
+                  {seconds < 10 ? "0" + seconds : seconds} Left
+                </span>
               )}
             </p>
           </div>

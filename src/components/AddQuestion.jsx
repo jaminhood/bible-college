@@ -1,7 +1,6 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { useState } from "react";
-import
-{
+import {
   Button,
   Col,
   Form,
@@ -14,8 +13,7 @@ import
 } from "reactstrap";
 import { updateAnExam } from "../helpers";
 
-const AddQuestion = ({ exam, modal, toggle }) =>
-{
+const AddQuestion = ({ exam, modal, toggle }) => {
   const [question, setQuestion] = useState(``);
   const [optionOne, setOptionOne] = useState(``);
   const [optionTwo, setOptionTwo] = useState(``);
@@ -25,75 +23,62 @@ const AddQuestion = ({ exam, modal, toggle }) =>
 
   const canSubmit = Boolean(question);
 
-  const reset = () =>
-  {
-    setQuestion(``)
-    setOptionOne(``)
-    setOptionTwo(``)
-    setOptionThree(``)
-    setOptionFour(``)
-    setCorrectAnswer(0)
-  }
+  const reset = () => {
+    setQuestion(``);
+    setOptionOne(``);
+    setOptionTwo(``);
+    setOptionThree(``);
+    setOptionFour(``);
+    setCorrectAnswer(0);
+  };
 
-  const handleSubmit = async (e) =>
-  {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (question)
-    {
-      const options = []
+    if (question) {
+      const options = [];
 
-      if (optionOne)
-      {
-        options.push(
-          {
-            id: nanoid(),
-            answerText: optionOne,
-            isCorrect: correctAnswer === 1 ? true : false,
-            answered: false,
-          },
-        )
+      if (optionOne) {
+        options.push({
+          id: nanoid(),
+          answerText: optionOne,
+          isCorrect: correctAnswer === 1 ? true : false,
+          answered: false,
+        });
       }
 
-      if (optionTwo)
-      {
-        options.push(
-          {
-            id: nanoid(),
-            answerText: optionTwo,
-            isCorrect: correctAnswer === 2 ? true : false,
-            answered: false,
-          },
-        )
+      if (optionTwo) {
+        options.push({
+          id: nanoid(),
+          answerText: optionTwo,
+          isCorrect: correctAnswer === 2 ? true : false,
+          answered: false,
+        });
       }
 
-      if (optionThree)
-      {
-        options.push(
-          {
-            id: nanoid(),
-            answerText: optionThree,
-            isCorrect: correctAnswer === 3 ? true : false,
-            answered: false,
-          },
-        )
+      if (optionThree) {
+        options.push({
+          id: nanoid(),
+          answerText: optionThree,
+          isCorrect: correctAnswer === 3 ? true : false,
+          answered: false,
+        });
       }
 
-      if (optionFour)
-      {
-        options.push(
-          {
-            id: nanoid(),
-            answerText: optionFour,
-            isCorrect: correctAnswer === 4 ? true : false,
-            answered: false,
-          },
-        )
+      if (optionFour) {
+        options.push({
+          id: nanoid(),
+          answerText: optionFour,
+          isCorrect: correctAnswer === 4 ? true : false,
+          answered: false,
+        });
       }
 
-      (options.length > 0)
-        ? await updateAnExam(exam, { id: nanoid(), question, options }).then(reset)
-        : await updateAnExam(exam, { id: nanoid(), question }).then(reset)
+      options.length > 0
+        ? await updateAnExam(exam, { id: nanoid(), question, options }).then(
+            reset
+          )
+        : await updateAnExam(exam, { id: nanoid(), question }).then(reset);
     }
   };
 
