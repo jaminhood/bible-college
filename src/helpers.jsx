@@ -69,3 +69,29 @@ export const addStudent = async (student) =>
 {
   await addDoc(collection(db, `students`), student)
 }
+
+export const updateAnswer = async (input) =>
+{
+  const { user, examId, questionId, answerId, essayContent, type } = input
+  const answers = getStorage(`answers`)
+  if (answers.filter(answer => answer.user === user && answer.examId === examId && answer.questionId === questionId).length > 0)
+  {
+    const tmpAns = answers.map(answer =>
+    {
+      if (answer.user === user && answer.examId === examId && answer.questionId === questionId)
+      {
+        answer.answer = type === `option` ? answerId : essayContent
+      }
+      return answer
+    })
+    setStorage(`answers`, answers);
+  } else
+  {
+    const answer = type === `option` ? answerId : essayContent
+    await addDoc(collection(db, `answers`), { user, examId, questionId, answer, type })
+    setStorage(`answers`, answers);
+  }
+  // await updateDoc(doc(db, `answers`, input.user), {
+  //   // questions: 
+  // })
+}

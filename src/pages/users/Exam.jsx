@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getStorage, setStorage } from "../../helpers";
+import { getStorage, setStorage, updateAnswer } from "../../helpers";
 import { changeAnswer, exams, scores, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
 import { collection, onSnapshot, query } from "firebase/firestore";
@@ -19,18 +19,22 @@ export default function Exam ()
   const navigate = useNavigate();
   // redux
   const user = useSelector(activeUser);
-  // effect
+
   useEffect(() =>
   {
     user.role === undefined ? navigate(`/`) : user.role === `student` ? false : navigate(`/admin/dashboard`)
   });
   // state
   const [currentExam, setCurrentExam] = useState(``);
+  const [minutes, setMinutes] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes);
+  const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
+  const [timerEnd, setTimerEnd] = useState(false);
+  const [examEnd, setExamEnd] = useState(false);
 
   useEffect(() =>
   {
-    const q = query(collection(db, `exams`))
-    const unsubscribe = onSnapshot(q, querySnapshot =>
+    let q = query(collection(db, `exams`))
+    let unsubscribe = onSnapshot(q, querySnapshot =>
     {
       let examsArr = []
       querySnapshot.forEach(doc =>
@@ -40,6 +44,17 @@ export default function Exam ()
       if (!examsArr.find((e) => e.id === id))
         navigate("/");
       setCurrentExam(examsArr.find(exam => exam.id === id))
+    })
+
+    q = query(collection(db, `answers`))
+    unsubscribe = onSnapshot(q, querySnapshot =>
+    {
+      let answersArr = []
+      querySnapshot.forEach(doc =>
+      {
+        answersArr.push({ ...doc.data(), id: doc.id })
+      })
+      setStorage(`answers`, answersArr)
     })
     return () => unsubscribe()
   }, []);
@@ -54,17 +69,14 @@ export default function Exam ()
       minutes: getStorage(`time`).minutes,
       seconds: getStorage(`time`).seconds,
     })
-  const [minutes, setMinutes] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).minutes);
-  const [seconds, setSeconds] = useState(getStorage(`time`).examId === currentExam.id && getStorage(`time`).seconds);
-  const [timerEnd, setTimerEnd] = useState(false);
-  const [examEnd, setExamEnd] = useState(false);
 
   const dispatch = useDispatch();
 
-  const handleAnswer = (questionId, answerId) =>
+  const handleAnswer = async (questionId, answerId) =>
   {
-    const ids = { userId: user.id, examId: currentExam.id, questionId, answerId, type: `option` }
-    dispatch(changeAnswer(ids));
+    const ids = { user: user.matricNumber, examId: currentExam.id, questionId, answerId, type: `option` }
+    await updateAnswer(ids)
+    // dispatch(changeAnswer(ids));
   };
 
   const timeout = () => navigate(`/`)
