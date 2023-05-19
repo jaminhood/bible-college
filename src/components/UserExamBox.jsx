@@ -3,7 +3,6 @@ import { parseISO, formatDistanceToNow } from "date-fns";
 import { useSelector } from "react-redux";
 import { activeUser } from "../redux/usersSlice";
 import { scores } from "../redux/examsSlice";
-import { useState } from "react";
 
 const UserExamBox = ({ exam }) => {
   const { id, title, imgText, date } = exam;

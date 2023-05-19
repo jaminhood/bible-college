@@ -6,8 +6,12 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getStorage, setStorage, updateAnswer } from "../../helpers";
-import { changeAnswer, submitExam } from "../../redux/examsSlice";
+import {
+  getStorage,
+  setStorage,
+  submitExam,
+  updateAnswer,
+} from "../../helpers";
 import { activeUser } from "../../redux/usersSlice";
 import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
@@ -55,6 +59,7 @@ export default function Exam() {
       querySnapshot.forEach((doc) => {
         examsArr.push({ ...doc.data(), id: doc.id });
       });
+      setStorage(`exams`, examsArr);
       if (!examsArr.find((e) => e.id === id)) navigate("/");
       setCurrentExam(examsArr.find((exam) => exam.id === id));
     });
@@ -66,6 +71,15 @@ export default function Exam() {
         answersArr.push({ ...doc.data(), id: doc.id });
       });
       setStorage(`answers`, answersArr);
+    });
+
+    q = query(collection(db, `scores`));
+    unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let scoresArr = [];
+      querySnapshot.forEach((doc) => {
+        scoresArr.push({ ...doc.data(), id: doc.id });
+      });
+      setStorage(`scores`, scoresArr);
     });
     return () => unsubscribe();
   };
@@ -90,9 +104,10 @@ export default function Exam() {
   const timeout = () => navigate(`/`);
 
   const handleFinished = () => {
-    dispatch(submitExam(user.id, currentExam.id));
-    setExamEnd(!examEnd);
-    setTimeout(timeout, 2000);
+    submitExam({ user: user.matricNumber, examId: currentExam.id });
+    // dispatch(submitExam(user.id, currentExam.id));
+    // setExamEnd(!examEnd);
+    // setTimeout(timeout, 2000);
   };
 
   const handleEssay = async (questionId, essay) => {
