@@ -10,9 +10,9 @@ import Exam from "./users/Exam";
 import Admin from "./admin/Admin";
 import ExamsList from "./users/ExamsList";
 import ShowScores from "./ShowScores";
+import Error from "./Error";
 
-export default function Pages ()
-{
+export default function Pages() {
   return (
     <>
       <BrowserRouter>
@@ -32,7 +32,7 @@ export default function Pages ()
               <Route path="dashboard" element={<Welcome />} />
             </Route>
           </Route>
-          <Route path="/*" element={<Home />} />
+          <Route path="/*" element={<Error />} />
         </Routes>
       </BrowserRouter>
     </>
