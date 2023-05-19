@@ -7,12 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getStorage, setStorage, updateAnswer } from "../../helpers";
-import {
-  changeAnswer,
-  exams,
-  scores,
-  submitExam,
-} from "../../redux/examsSlice";
+import { changeAnswer, submitExam } from "../../redux/examsSlice";
 import { activeUser } from "../../redux/usersSlice";
 import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
@@ -53,11 +48,7 @@ export default function Exam() {
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
 
-  getDoc(doc(db, `exam`, id)).then((item) => {
-    console.log(item);
-  });
-
-  useEffect(() => {
+  const getStore = () => {
     let q = query(collection(db, `exams`));
     let unsubscribe = onSnapshot(q, (querySnapshot) => {
       let examsArr = [];
@@ -77,6 +68,9 @@ export default function Exam() {
       setStorage(`answers`, answersArr);
     });
     return () => unsubscribe();
+  };
+  useEffect(() => {
+    getStore();
   }, [getStorage(`exams`), getStorage(`answers`)]);
   // methods
 
@@ -91,7 +85,6 @@ export default function Exam() {
       type: `option`,
     };
     await updateAnswer(ids);
-    // dispatch(changeAnswer(ids));
   };
 
   const timeout = () => navigate(`/`);
@@ -102,15 +95,15 @@ export default function Exam() {
     setTimeout(timeout, 2000);
   };
 
-  const handleEssay = (questionId, essay) => {
+  const handleEssay = async (questionId, essay) => {
     const ids = {
-      userId: user.id,
+      user: user.matricNumber,
       examId: currentExam.id,
       questionId,
       essayContent: essay,
       type: `essay`,
     };
-    dispatch(changeAnswer(ids));
+    await updateAnswer(ids);
   };
 
   useEffect(() => {

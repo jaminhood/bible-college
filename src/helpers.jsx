@@ -1,16 +1,20 @@
-import { addDoc, collection, deleteDoc, doc, updateDoc } from "firebase/firestore"
-import { db } from "./config/firebase"
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "./config/firebase";
 
-export const getStorage = (key) =>
-{
-  return JSON.parse(localStorage.getItem(key) || `[]`)
-}
+export const getStorage = (key) => {
+  return JSON.parse(localStorage.getItem(key) || `[]`);
+};
 
-export const setStorage = (key, value) =>
-{
-  localStorage.setItem(key, JSON.stringify(value))
-  return true
-}
+export const setStorage = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
+  return true;
+};
 
 export const days = [
   `Sunday`,
@@ -20,7 +24,7 @@ export const days = [
   `Thursday`,
   `Friday`,
   `Saturday`,
-]
+];
 
 export const months = [
   `January`,
@@ -35,68 +39,73 @@ export const months = [
   `October`,
   `November`,
   `December`,
-]
+];
 
-export const addAnExam = async (exam) =>
-{
-  await addDoc(collection(db, `exams`), exam)
-}
+export const addAnExam = async (exam) => {
+  await addDoc(collection(db, `exams`), exam);
+};
 
-export const removeAnExam = async (id) =>
-{
-  await deleteDoc(doc(db, `exams`, id))
-}
+export const removeAnExam = async (id) => {
+  await deleteDoc(doc(db, `exams`, id));
+};
 
-export const updateAnExam = async (exam, input) =>
-{
+export const updateAnExam = async (exam, input) => {
   await updateDoc(doc(db, `exams`, exam.id), {
-    questions: [
-      ...exam.questions,
-      input
-    ]
-  })
-}
+    questions: [...exam.questions, input],
+  });
+};
 
-export const removeAQuestion = async (exam, question) =>
-{
-  const tmpQuestions = exam.questions.filter(qst => qst.id !== question.id)
+export const removeAQuestion = async (exam, question) => {
+  const tmpQuestions = exam.questions.filter((qst) => qst.id !== question.id);
   await updateDoc(doc(db, `exams`, exam.id), {
-    questions: tmpQuestions
-  })
-}
+    questions: tmpQuestions,
+  });
+};
 
-export const addStudent = async (student) =>
-{
-  await addDoc(collection(db, `students`), student)
-}
+export const addStudent = async (student) => {
+  await addDoc(collection(db, `students`), student);
+};
 
-export const updateAnswer = async (input) =>
-{
-  const { user, examId, questionId, answerId, essayContent, type } = input
-  const answers = getStorage(`answers`)
-  let tmpAnswers = []
-  if (answers.filter(answer => answer.user === user && answer.examId === examId && answer.questionId === questionId).length > 0)
-  {
-    tmpAnswers = answers.map(answer =>
-    {
-      if (answer.user === user && answer.examId === examId && answer.questionId === questionId)
-      {
-        answer.answer = type === `option` ? answerId : essayContent
+export const updateAnswer = async (input) => {
+  const { user, examId, questionId, answerId, essayContent, type } = input;
+  const answers = getStorage(`answers`);
+  let tmpAnswers = [];
+  if (
+    answers.filter(
+      (answer) =>
+        answer.user === user &&
+        answer.examId === examId &&
+        answer.questionId === questionId
+    ).length > 0
+  ) {
+    tmpAnswers = answers.map((answer) => {
+      if (
+        answer.user === user &&
+        answer.examId === examId &&
+        answer.questionId === questionId
+      ) {
+        answer.answer = type === `option` ? answerId : essayContent;
       }
-      return answer
-    })
-    const answer = answers.find(answer => answer.user === user && answer.examId === examId && answer.questionId === questionId)
+      return answer;
+    });
+    const answer = answers.find(
+      (answer) =>
+        answer.user === user &&
+        answer.examId === examId &&
+        answer.questionId === questionId
+    );
     await updateDoc(doc(db, `answers`, answer.id), {
-      answer: type === `option` ? answerId : essayContent
-    })
-  } else
-  {
-    const answer = type === `option` ? answerId : essayContent
-    await addDoc(collection(db, `answers`), { user, examId, questionId, answer, type })
-    tmpAnswers = [
-      ...answers,
-      { user, examId, questionId, answer, type }
-    ]
+      answer: type === `option` ? answerId : essayContent,
+    }).then(() => setStorage(`answers`, tmpAnswers));
+  } else {
+    const answer = type === `option` ? answerId : essayContent;
+    tmpAnswers = [...answers, { user, examId, questionId, answer, type }];
+    await addDoc(collection(db, `answers`), {
+      user,
+      examId,
+      questionId,
+      answer: type === `option` ? answerId : essayContent,
+      type,
+    }).then(() => setStorage(`answers`, tmpAnswers));
   }
-  setStorage(`answers`, tmpAnswers);
-}
+};

@@ -8,9 +8,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
+import { setStorage } from "../../helpers";
 
 const ExamsList = () => {
   const navigate = useNavigate();
+  setStorage(`time`, {
+    examId: ``,
+    minutes: 0,
+    seconds: 0,
+  });
 
   const user = useSelector(activeUser);
   const [allExams, setAllExams] = useState([]);
