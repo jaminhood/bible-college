@@ -49,11 +49,18 @@ export const removeAnExam = async (id) =>
 
 export const updateAnExam = async (exam, input) =>
 {
-  console.log(exam)
   await updateDoc(doc(db, `exams`, exam.id), {
     questions: [
       ...exam.questions,
       input
     ]
+  })
+}
+
+export const removeAQuestion = async (exam, question) =>
+{
+  const tmpQuestions = exam.questions.filter(qst => qst.id !== question.id)
+  await updateDoc(doc(db, `exams`, exam.id), {
+    questions: tmpQuestions
   })
 }

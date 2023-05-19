@@ -12,7 +12,7 @@ import
 } from "reactstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { days, months } from "../../helpers";
+import { days, months, removeAQuestion } from "../../helpers";
 import AddQuestion from "../../components/AddQuestion";
 import { BiTrash } from "react-icons/bi";
 import { removeQuestion } from "../../redux/examsSlice";
@@ -94,7 +94,7 @@ const Course = () =>
                     <div className="card-header">
                       <h5 className="d-flex justify-content-between align-items-center">
                         {question.question}
-                        <BiTrash className="icon" onClick={() => dispatch(removeQuestion(currentExam.id, question.id))} />
+                        <BiTrash className="icon" onClick={async () => removeAQuestion(currentExam, question)} />
                       </h5>
                     </div>
                     <div className="card-body">
