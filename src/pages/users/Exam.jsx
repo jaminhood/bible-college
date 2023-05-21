@@ -81,7 +81,7 @@ export default function Exam ()
   {
     const score = {
       user: user.matricNumber,
-      examId: currentExam.id,
+      examId: id,
       objective: 0,
       essay: answers
         .filter((answer) => answer.type === `essay`)
@@ -110,7 +110,7 @@ export default function Exam ()
 
     submitExam(score);
     setExamEnd(!examEnd);
-    // setTimeout(timeout, 2000);
+    setTimeout(timeout, 2000);
   };
 
   const handleEssay = async (questionId, essay) =>

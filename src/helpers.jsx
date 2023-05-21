@@ -139,6 +139,8 @@ export const updateAnswer = async (input) =>
 
 export const submitExam = async (input) =>
 {
-  console.log(input)
-  // await addDoc(collection(db, `scores`), input);
+  await addDoc(collection(db, `scores`), {
+    ...input,
+    essay: input.essay ? input.essay : ``
+  });
 };
