@@ -39,16 +39,9 @@ export default function Exam ()
   const [examEnd, setExamEnd] = useState(false);
 
   const getStore = async () =>
-  {
     await getDoc(doc(db, `exams`, id))
       .then(data => setCurrentExam(data.data()))
 
-    // await getDoc(doc(db, `answers`, id))
-    //   .then(data => setStorage(`answers`, data.data()))
-
-    // await getDoc(doc(db, `scores`, id))
-    //   .then(data => setStorage(`scores`, data.data()))
-  };
   useEffect(() => { getStore() }, []);
 
   const handleAnswer = async (questionId, answerId) =>

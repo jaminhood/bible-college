@@ -3,12 +3,28 @@ import { parseISO, formatDistanceToNow } from "date-fns";
 import { useSelector } from "react-redux";
 import { activeUser } from "../redux/usersSlice";
 import { scores } from "../redux/examsSlice";
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../config/firebase";
 
-const UserExamBox = ({ exam }) => {
+const UserExamBox = ({ exam }) =>
+{
   const { id, title, imgText, date } = exam;
 
   const user = useSelector(activeUser);
-  const userScores = useSelector(scores);
+  const [userScores, setUserScores] = useState([]);
+
+  const getExams = async () =>
+    await getDocs(collection(db, `scores`))
+      .then(data => data.docs.map(item =>
+      {
+        const data = item.data()
+        data.id = item.id
+        return (data)
+      }))
+      .then(data => setUserScores(data))
+
+  useEffect(() => { getExams() }, [userScores]);
 
   let done = false;
 
@@ -16,13 +32,16 @@ const UserExamBox = ({ exam }) => {
     (sc) => sc.userId === user.id && sc.examId === exam.id
   );
 
-  if (userScore) {
+  if (userScore)
+  {
     done = true;
   }
 
-  const newDate = (time) => {
+  const newDate = (time) =>
+  {
     let newTime = ``;
-    if (time) {
+    if (time)
+    {
       const newDate = parseISO(time);
       const timePeriod = formatDistanceToNow(newDate);
       newTime = `${timePeriod} to go`;

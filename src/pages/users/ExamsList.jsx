@@ -6,39 +6,35 @@ import UserExamBox from "../../components/UserExamBox";
 import { activeUser } from "../../redux/usersSlice";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
-import { setStorage } from "../../helpers";
 
-const ExamsList = () => {
+const ExamsList = () =>
+{
   const navigate = useNavigate();
-  setStorage(`time`, {
-    examId: ``,
-    minutes: 0,
-    seconds: 0,
-  });
 
   const user = useSelector(activeUser);
   const [allExams, setAllExams] = useState([]);
 
-  useEffect(() => {
-    const q = query(collection(db, `exams`));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let examsArr = [];
-      querySnapshot.forEach((doc) => {
-        examsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setAllExams(examsArr);
-    });
-    return () => unsubscribe();
-  }, []);
+  const getExams = async () =>
+    await getDocs(collection(db, `exams`))
+      .then(data => data.docs.map(item =>
+      {
+        const data = item.data()
+        data.id = item.id
+        return (data)
+      }))
+      .then(data => setAllExams(data))
 
-  useEffect(() => {
+  useEffect(() => { getExams() }, []);
+
+  useEffect(() =>
+  {
     user.role === undefined
       ? navigate(`/`)
       : user.role === `student`
-      ? false
-      : navigate(`/admin/dashboard`);
+        ? false
+        : navigate(`/admin/dashboard`);
   });
 
   const flexSpaceCls = `d-flex justify-content-between align-items-center`;
