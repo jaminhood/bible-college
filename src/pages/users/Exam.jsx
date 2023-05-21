@@ -6,7 +6,8 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import {
+import
+{
   formatTime,
   getStorage,
   setStorage,
@@ -14,99 +15,94 @@ import {
   updateAnswer,
 } from "../../helpers";
 import { activeUser } from "../../redux/usersSlice";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-export default function Exam() {
-  // router
+export default function Exam ()
+{
   const { id } = useParams();
   const navigate = useNavigate();
-  // redux
   const user = useSelector(activeUser);
 
-  useEffect(() => {
+  useEffect(() =>
+  {
     user.role === undefined
       ? navigate(`/`)
       : user.role === `student`
-      ? false
-      : navigate(`/admin/dashboard`);
+        ? false
+        : navigate(`/admin/dashboard`);
   });
-  // state
+
   const [currentExam, setCurrentExam] = useState(``);
-  // useEffect(() => {
-  //   getStorage(`time`).examId !== currentExam.id
-  //     ? setStorage(`time`, {
-  //         examId: currentExam.id,
-  //         minutes: 40,
-  //         seconds: 0,
-  //       })
-  //     : setStorage(`time`, {
-  //         examId: currentExam.id,
-  //         minutes: getStorage(`time`).minutes,
-  //         seconds: getStorage(`time`).seconds,
-  //       });
-  // }, []);
-  // const [minutes, setMinutes] = useState(getStorage(`time`).minutes || 40);
-  // const [seconds, setSeconds] = useState(getStorage(`time`).seconds || 0);
+  const [answers, setAnswers] = useState([]);
   const [timerEnd, setTimerEnd] = useState(false);
   const [examEnd, setExamEnd] = useState(false);
 
-  const getStore = () => {
-    let q = query(collection(db, `exams`));
-    let unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let examsArr = [];
-      querySnapshot.forEach((doc) => {
-        examsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setStorage(`exams`, examsArr);
-      if (!examsArr.find((e) => e.id === id)) navigate("/");
-      setCurrentExam(examsArr.find((exam) => exam.id === id));
-    });
+  const getStore = async () =>
+  {
+    await getDoc(doc(db, `exams`, id))
+      .then(data => setCurrentExam(data.data()))
 
-    q = query(collection(db, `answers`));
-    unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let answersArr = [];
-      querySnapshot.forEach((doc) => {
-        answersArr.push({ ...doc.data(), id: doc.id });
-      });
-      setStorage(`answers`, answersArr);
-    });
+    // await getDoc(doc(db, `answers`, id))
+    //   .then(data => setStorage(`answers`, data.data()))
 
-    q = query(collection(db, `scores`));
-    unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let scoresArr = [];
-      querySnapshot.forEach((doc) => {
-        scoresArr.push({ ...doc.data(), id: doc.id });
-      });
-      setStorage(`scores`, scoresArr);
-    });
-    return () => unsubscribe();
+    // await getDoc(doc(db, `scores`, id))
+    //   .then(data => setStorage(`scores`, data.data()))
   };
-  useEffect(() => {
+  useEffect(() =>
+  {
     getStore();
   }, [getStorage(`exams`), getStorage(`answers`)]);
   // methods
 
-  const handleAnswer = async (questionId, answerId) => {
-    const ids = {
-      user: user.matricNumber,
-      examId: currentExam.id,
-      questionId,
-      answerId,
-      type: `option`,
-    };
-    await updateAnswer(ids);
+  const handleAnswer = async (questionId, answerId) =>
+  {
+    // const ids = {
+    //   user: user.matricNumber,
+    //   examId: currentExam.id,
+    //   questionId,
+    //   answerId,
+    //   type: `option`,
+    // };
+    // await updateAnswer(ids);
+    if (answers.find(answer => answer.questionId === questionId))
+    {
+      const tmpAnswer = answers.map(ans =>
+      {
+        if (ans.questionId === questionId)
+        {
+          ans.answerId = answerId
+        }
+        return ans
+      })
+      setAnswers(tmpAnswer)
+    } else
+    {
+      const ids = {
+        questionId,
+        answerId,
+        type: `option`,
+      };
+      setAnswers([...answers, ids])
+    }
   };
+
+  useEffect(() =>
+  {
+    console.log(answers)
+  }, [answers])
 
   const timeout = () => navigate(`/`);
 
-  const handleFinished = () => {
+  const handleFinished = () =>
+  {
     submitExam({ user: user.matricNumber, examId: currentExam.id });
     setExamEnd(!examEnd);
     setTimeout(timeout, 2000);
   };
 
-  const handleEssay = async (questionId, essay) => {
+  const handleEssay = async (questionId, essay) =>
+  {
     const ids = {
       user: user.matricNumber,
       examId: currentExam.id,
@@ -120,15 +116,19 @@ export default function Exam() {
   const [time, setTime] = useState(2400);
   const timer = useRef();
 
-  useEffect(() => {
-    timer.current = setInterval(() => {
+  useEffect(() =>
+  {
+    timer.current = setInterval(() =>
+    {
       setTime((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(timer.current);
   }, []);
 
-  useEffect(() => {
-    if (time <= 0) {
+  useEffect(() =>
+  {
+    if (time <= 0)
+    {
       clearInterval(timer.current);
       setTimerEnd(!timerEnd);
     }
@@ -189,9 +189,8 @@ export default function Exam() {
         </section>
         {examEnd === false && (
           <div
-            className={`timer ${
-              timerEnd ? `bg-danger` : `bg-success`
-            } p-1 text-light text-center`}
+            className={`timer ${timerEnd ? `bg-danger` : `bg-success`
+              } p-1 text-light text-center`}
           >
             <p className="lead m-0">
               {timerEnd ? (

@@ -1,22 +1,26 @@
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  updateDoc,
-} from "firebase/firestore";
+import
+  {
+    addDoc,
+    collection,
+    deleteDoc,
+    doc,
+    updateDoc,
+  } from "firebase/firestore";
 import { db } from "./config/firebase";
 
-export const getStorage = (key) => {
+export const getStorage = (key) =>
+{
   return JSON.parse(localStorage.getItem(key) || `[]`);
 };
 
-export const setStorage = (key, value) => {
+export const setStorage = (key, value) =>
+{
   localStorage.setItem(key, JSON.stringify(value));
   return true;
 };
 
-export const formatTime = (time) => {
+export const formatTime = (time) =>
+{
   let minute = Math.floor(time / 60);
   let second = Math.floor(time - minute * 60);
   if (minute <= 9) minute = "0" + minute;
@@ -49,32 +53,43 @@ export const months = [
   `December`,
 ];
 
-export const addAnExam = async (exam) => {
+export const addScore = async (score) =>
+{
+  await addDoc(collection(db, `scores`), score);
+};
+
+export const addAnExam = async (exam) =>
+{
   await addDoc(collection(db, `exams`), exam);
 };
 
-export const removeAnExam = async (id) => {
+export const removeAnExam = async (id) =>
+{
   await deleteDoc(doc(db, `exams`, id));
 };
 
-export const updateAnExam = async (exam, input) => {
+export const updateAnExam = async (exam, input) =>
+{
   await updateDoc(doc(db, `exams`, exam.id), {
     questions: [...exam.questions, input],
   });
 };
 
-export const removeAQuestion = async (exam, question) => {
+export const removeAQuestion = async (exam, question) =>
+{
   const tmpQuestions = exam.questions.filter((qst) => qst.id !== question.id);
   await updateDoc(doc(db, `exams`, exam.id), {
     questions: tmpQuestions,
   });
 };
 
-export const addStudent = async (student) => {
+export const addStudent = async (student) =>
+{
   await addDoc(collection(db, `students`), student);
 };
 
-export const updateAnswer = async (input) => {
+export const updateAnswer = async (input) =>
+{
   const { user, examId, questionId, answerId, essayContent, type } = input;
   const answers = getStorage(`answers`);
   let tmpAnswers = [];
@@ -85,13 +100,16 @@ export const updateAnswer = async (input) => {
         answer.examId === examId &&
         answer.questionId === questionId
     ).length > 0
-  ) {
-    tmpAnswers = answers.map((answer) => {
+  )
+  {
+    tmpAnswers = answers.map((answer) =>
+    {
       if (
         answer.user === user &&
         answer.examId === examId &&
         answer.questionId === questionId
-      ) {
+      )
+      {
         answer.answer = type === `option` ? answerId : essayContent;
       }
       return answer;
@@ -105,7 +123,8 @@ export const updateAnswer = async (input) => {
     await updateDoc(doc(db, `answers`, answer.id), {
       answer: type === `option` ? answerId : essayContent,
     }).then(() => setStorage(`answers`, tmpAnswers));
-  } else {
+  } else
+  {
     const answer = type === `option` ? answerId : essayContent;
     tmpAnswers = [...answers, { user, examId, questionId, answer, type }];
     await addDoc(collection(db, `answers`), {
@@ -118,7 +137,8 @@ export const updateAnswer = async (input) => {
   }
 };
 
-export const submitExam = async (input) => {
+export const submitExam = async (input) =>
+{
   const { user, examId } = input;
   const answers = getStorage(`answers`);
 
@@ -134,14 +154,21 @@ export const submitExam = async (input) => {
   };
 
   const newOptions = newAnswers.filter((answer) => answer.type === `option`);
-  newOptions.forEach((option) => {
-    getStorage(`exams`).forEach((exam) => {
-      if (exam.id === option.examId) {
-        exam.questions.forEach((question) => {
-          if (question.id === option.questionId) {
+  newOptions.forEach((option) =>
+  {
+    getStorage(`exams`).forEach((exam) =>
+    {
+      if (exam.id === option.examId)
+      {
+        exam.questions.forEach((question) =>
+        {
+          if (question.id === option.questionId)
+          {
             question.options &&
-              question.options.forEach((opt) => {
-                if (opt.id === option.answer && opt.isCorrect === true) {
+              question.options.forEach((opt) =>
+              {
+                if (opt.id === option.answer && opt.isCorrect === true)
+                {
                   score.objective += 1;
                 }
               });
@@ -154,9 +181,12 @@ export const submitExam = async (input) => {
     getStorage(`scores`).filter(
       (sc) => sc.user === user && sc.examId === examId
     ).length > 0
-  ) {
-    const tmpScores = getStorage(`scores`).map((sc) => {
-      if (sc.user === user && sc.examId === examId) {
+  )
+  {
+    const tmpScores = getStorage(`scores`).map((sc) =>
+    {
+      if (sc.user === user && sc.examId === examId)
+      {
         sc.score = score;
       }
       return sc;
@@ -174,7 +204,8 @@ export const submitExam = async (input) => {
         score,
       }
     ).then(() => setStorage(`scores`, tmpScores));
-  } else {
+  } else
+  {
     const tmpScores = [...getStorage(`scores`), { user, examId, score }];
     await addDoc(collection(db, `scores`), { user, examId, score }).then(() =>
       setStorage(`scores`, tmpScores)
