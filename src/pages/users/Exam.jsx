@@ -49,11 +49,7 @@ export default function Exam ()
     // await getDoc(doc(db, `scores`, id))
     //   .then(data => setStorage(`scores`, data.data()))
   };
-  useEffect(() =>
-  {
-    getStore();
-  }, [getStorage(`exams`), getStorage(`answers`)]);
-  // methods
+  useEffect(() => { getStore() }, []);
 
   const handleAnswer = async (questionId, answerId) =>
   {
