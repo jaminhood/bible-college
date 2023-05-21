@@ -1,13 +1,12 @@
-import './styles/App.scss'
-import Pages from './pages/Pages'
+import "./styles/App.scss";
+import Pages from "./pages/Pages";
 
-function App ()
-{
+function App() {
   return (
     <>
-      <Pages/>
+      <Pages />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import DashboardContent from "./DashboardContent";
-import
-{
+import {
   Button,
   Col,
   Container,
@@ -16,33 +15,28 @@ import { BiTrash } from "react-icons/bi";
 import { collection, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const Course = () =>
-{
+const Course = () => {
   const { id } = useParams();
 
   const [currentExam, setCurrentExam] = useState(``);
 
-  useEffect(() =>
-  {
-    const q = query(collection(db, `exams`))
-    const unsubscribe = onSnapshot(q, querySnapshot =>
-    {
-      let examsArr = []
-      querySnapshot.forEach(doc =>
-      {
-        examsArr.push({ ...doc.data(), id: doc.id })
-      })
-      setCurrentExam(examsArr.find(exam => exam.id === id))
-    })
-    return () => unsubscribe()
-  }, [])
+  useEffect(() => {
+    const q = query(collection(db, `exams`));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      let examsArr = [];
+      querySnapshot.forEach((doc) => {
+        examsArr.push({ ...doc.data(), id: doc.id });
+      });
+      setCurrentExam(examsArr.find((exam) => exam.id === id));
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [modal, setModal] = useState(false);
 
   const toggle = () => setModal(!modal);
 
-  const getDate = () =>
-  {
+  const getDate = () => {
     const dateTime = new Date(currentExam.date);
     const day = days[dateTime.getDay()];
     const date = dateTime.getDate();
@@ -89,24 +83,29 @@ const Course = () =>
                     <div className="card-header">
                       <h5 className="d-flex justify-content-between align-items-center">
                         {question.question}
-                        <BiTrash className="icon" onClick={async () => removeAQuestion(currentExam, question)} />
+                        <BiTrash
+                          className="icon"
+                          onClick={async () =>
+                            removeAQuestion(currentExam, question)
+                          }
+                        />
                       </h5>
                     </div>
                     <div className="card-body">
                       <ListGroup>
                         {question.options
                           ? question.options.map((answerOption) => (
-                            <ListGroupItem
-                              key={answerOption.id}
-                              className={
-                                answerOption.isCorrect
-                                  ? `bg-success text-light`
-                                  : null
-                              }
-                            >
-                              {answerOption.answerText}
-                            </ListGroupItem>
-                          ))
+                              <ListGroupItem
+                                key={answerOption.id}
+                                className={
+                                  answerOption.isCorrect
+                                    ? `bg-success text-light`
+                                    : null
+                                }
+                              >
+                                {answerOption.answerText}
+                              </ListGroupItem>
+                            ))
                           : null}
                       </ListGroup>
                     </div>

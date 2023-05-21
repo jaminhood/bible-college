@@ -5,58 +5,56 @@ import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const Students = () =>
-{
+const Students = () => {
   const [examsList, setExamsList] = useState([]);
   const [studentsList, setStudentsList] = useState([]);
   const [scoresList, setScoresList] = useState([]);
 
-  const getExams = async () =>
-  {
+  const getExams = async () => {
     await getDocs(collection(db, `exams`))
-      .then(data => data.docs.map(item =>
-      {
-        const data = item.data()
-        data.id = item.id
-        return (data)
-      }))
-      .then(data => setExamsList(data))
+      .then((data) =>
+        data.docs.map((item) => {
+          const data = item.data();
+          data.id = item.id;
+          return data;
+        })
+      )
+      .then((data) => setExamsList(data));
 
     await getDocs(collection(db, `students`))
-      .then(data => data.docs.map(item =>
-      {
-        const data = item.data()
-        data.id = item.id
-        return (data)
-      }))
-      .then(data => setStudentsList(data))
+      .then((data) =>
+        data.docs.map((item) => {
+          const data = item.data();
+          data.id = item.id;
+          return data;
+        })
+      )
+      .then((data) => setStudentsList(data));
 
     await getDocs(collection(db, `scores`))
-      .then(data => data.docs.map(item =>
-      {
-        const data = item.data()
-        data.id = item.id
-        return (data)
-      }))
-      .then(data => setScoresList(data))
-  }
+      .then((data) =>
+        data.docs.map((item) => {
+          const data = item.data();
+          data.id = item.id;
+          return data;
+        })
+      )
+      .then((data) => setScoresList(data));
+  };
 
-  useEffect(() => { getExams() }, [scoresList, studentsList, examsList]);
+  useEffect(() => {
+    getExams();
+  }, [scoresList, studentsList, examsList]);
 
-  const display = studentsList.map((student) =>
-  {
+  const display = studentsList.map((student) => {
     const id = nanoid();
     const name = student?.name;
     const matricNumber = student?.matricNumber;
     const exams = [];
-    scoresList?.forEach((score) =>
-    {
-      if (score.user === student?.matricNumber)
-      {
-        examsList.forEach((exam) =>
-        {
-          if (exam.id === score?.examId)
-          {
+    scoresList?.forEach((score) => {
+      if (score.user === student?.matricNumber) {
+        examsList.forEach((exam) => {
+          if (exam.id === score?.examId) {
             exams.push({
               id: nanoid(),
               exam: exam?.title,

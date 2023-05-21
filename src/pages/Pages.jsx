@@ -10,8 +10,7 @@ import Admin from "./admin/Admin";
 import ExamsList from "./users/ExamsList";
 import Error from "./Error";
 
-export default function Pages ()
-{
+export default function Pages() {
   return (
     <>
       <BrowserRouter>

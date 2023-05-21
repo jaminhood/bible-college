@@ -1,10 +1,9 @@
-const LocalStorage = ({ key, value }) =>
-{
-  const item = JSON.parse(localStorage.getItem(key) || [])
+const LocalStorage = ({ key, value }) => {
+  const item = JSON.parse(localStorage.getItem(key) || []);
 
-  const setItem = localStorage.setItem(key, JSON.stringify(value))
+  const setItem = localStorage.setItem(key, JSON.stringify(value));
 
-  return [item, setItem]
-}
+  return [item, setItem];
+};
 
-export default LocalStorage
+export default LocalStorage;

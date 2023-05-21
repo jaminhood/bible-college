@@ -1,12 +1,11 @@
-import { Link } from "react-router-dom"
-import { BiTrash } from 'react-icons/bi';
+import { Link } from "react-router-dom";
+import { BiTrash } from "react-icons/bi";
 import { removeAnExam } from "../helpers";
 
-const ExamBox = ({ exam }) =>
-{
-  const { id, title, imgText } = exam
+const ExamBox = ({ exam }) => {
+  const { id, title, imgText } = exam;
 
-  const flexSpaceCls = `d-flex justify-content-between align-items-center`
+  const flexSpaceCls = `d-flex justify-content-between align-items-center`;
 
   return (
     <>
@@ -16,15 +15,13 @@ const ExamBox = ({ exam }) =>
         </div>
         <div className="card-body">
           <h5 className={flexSpaceCls}>
-            <Link to={`/admin/exam/${id}`}>
-              {title}
-            </Link>
+            <Link to={`/admin/exam/${id}`}>{title}</Link>
             <BiTrash className="icon" onClick={async () => removeAnExam(id)} />
           </h5>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ExamBox
+export default ExamBox;
