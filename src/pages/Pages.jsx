@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Welcome from "./admin/Welcome";
 import CreateCourse from "./admin/CreateCourse";
@@ -12,7 +11,8 @@ import ExamsList from "./users/ExamsList";
 import ShowScores from "./ShowScores";
 import Error from "./Error";
 
-export default function Pages() {
+export default function Pages ()
+{
   return (
     <>
       <BrowserRouter>

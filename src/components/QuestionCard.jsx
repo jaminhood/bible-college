@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react";
 import { FormGroup, ListGroup, ListGroupItem } from "reactstrap";
 import { getStorage } from "../helpers";
 
-const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
+const QuestionCard = ({ answers, examId, question, handleAnswer, handleEssay }) =>
 {
   const [essay, setEssay] = useState(``);
   const [answered, setAnswered] = useState(``);
-  const answers = getStorage(`answers`)
   const user = getStorage(`active`)
-  const [clicked, setClicked] = useState(false)
 
   useEffect(() =>
   {
@@ -16,13 +14,13 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
     {
       answers.forEach(answer =>
       {
-        if (answer.userId === user.id && answer.examId === examId && answer.questionId && answer.answer === option.id)
+        if (answer.questionId && answer.answerId === option.id)
         {
           setAnswered(option.id)
         }
       })
     })
-  }, [clicked])
+  }, [answers])
 
   const handleClick = (questionId, answerId) =>
   {
@@ -35,7 +33,6 @@ const QuestionCard = ({ examId, question, handleAnswer, handleEssay }) =>
         setAnswered(answerId)
       }
     })
-    setClicked(!clicked)
   }
 
   const handleEssayInput = (e, questionId) =>

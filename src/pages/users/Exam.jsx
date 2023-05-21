@@ -83,11 +83,6 @@ export default function Exam ()
     }
   };
 
-  useEffect(() =>
-  {
-    console.log(answers)
-  }, [answers])
-
   const timeout = () => navigate(`/`);
 
   const handleFinished = () =>
@@ -152,6 +147,7 @@ export default function Exam ()
                             question={question}
                             examId={currentExam.id}
                             key={question.id}
+                            answers={answers}
                             handleAnswer={handleAnswer}
                             handleEssay={handleEssay}
                           />
