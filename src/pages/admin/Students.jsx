@@ -1,62 +1,68 @@
 import { Table } from "reactstrap";
 import DashboardContent from "./DashboardContent";
-import { useSelector } from "react-redux";
-import { exams, scores } from "../../redux/examsSlice";
 import { students } from "../../redux/usersSlice";
 import { nanoid } from "@reduxjs/toolkit";
 import { useEffect, useState } from "react";
-import { collection, onSnapshot, query } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, query } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const Students = () => {
+const Students = () =>
+{
   const [examsList, setExamsList] = useState([]);
   const [studentsList, setStudentsList] = useState([]);
   const [scoresList, setScoresList] = useState([]);
 
-  useEffect(() => {
-    let q = query(collection(db, `exams`));
-    let unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let examsArr = [];
-      querySnapshot.forEach((doc) => {
-        examsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setExamsList(examsArr);
-    });
+  const getExams = async () =>
+  {
+    await getDocs(collection(db, `exams`))
+      .then(data => data.docs.map(item =>
+      {
+        const data = item.data()
+        data.id = item.id
+        return (data)
+      }))
+      .then(data => setExamsList(data))
 
-    q = query(collection(db, `students`));
-    unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let examsArr = [];
-      querySnapshot.forEach((doc) => {
-        examsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setStudentsList(examsArr);
-    });
+    await getDocs(collection(db, `students`))
+      .then(data => data.docs.map(item =>
+      {
+        const data = item.data()
+        data.id = item.id
+        return (data)
+      }))
+      .then(data => setStudentsList(data))
 
-    q = query(collection(db, `scores`));
-    unsubscribe = onSnapshot(q, (querySnapshot) => {
-      let examsArr = [];
-      querySnapshot.forEach((doc) => {
-        examsArr.push({ ...doc.data(), id: doc.id });
-      });
-      setScoresList(examsArr);
-    });
-    return () => unsubscribe();
-  }, []);
+    await getDocs(collection(db, `scores`))
+      .then(data => data.docs.map(item =>
+      {
+        const data = item.data()
+        data.id = item.id
+        return (data)
+      }))
+      .then(data => setScoresList(data))
+  }
 
-  const display = studentsList.map((student) => {
+  useEffect(() => { getExams() }, [scoresList, studentsList, examsList]);
+
+  const display = studentsList.map((student) =>
+  {
     const id = nanoid();
     const name = student.name;
     const matricNumber = student.matricNumber;
     const exams = [];
-    scoresList.forEach((score) => {
-      if (score.userId === student.id) {
-        examsList.forEach((exam) => {
-          if (exam.id === score.examId) {
+    scoresList.forEach((score) =>
+    {
+      if (score.user === student.matricNumber)
+      {
+        examsList.forEach((exam) =>
+        {
+          if (exam.id === score.examId)
+          {
             exams.push({
               id: nanoid(),
               exam: exam.title,
-              objective: score.score.objective,
-              essay: score.score.essay,
+              objective: score.objective,
+              essay: score.essay,
             });
           }
         });
