@@ -6,7 +6,6 @@ const QuestionCard = ({ answers, examId, question, handleAnswer, handleEssay }) 
 {
   const [essay, setEssay] = useState(``);
   const [answered, setAnswered] = useState(``);
-  const user = getStorage(`active`)
 
   useEffect(() =>
   {
@@ -25,14 +24,6 @@ const QuestionCard = ({ answers, examId, question, handleAnswer, handleEssay }) 
   const handleClick = (questionId, answerId) =>
   {
     handleAnswer(questionId, answerId)
-    const answers = getStorage(`answers`)
-    answers.forEach(answer =>
-    {
-      if (answer.userId === user.id && answer.examId === examId && answer.questionId === questionId && answer.answer === answerId && answer.type === `option`)
-      {
-        setAnswered(answerId)
-      }
-    })
   }
 
   const handleEssayInput = (e, questionId) =>
@@ -41,7 +32,6 @@ const QuestionCard = ({ answers, examId, question, handleAnswer, handleEssay }) 
     handleEssay(questionId, e.target.value)
   }
 
-  // useEffect(() => handleEssay(essay), [essay]);
   return (
     <div className="card-body">
       <p className="lead">{question.question}</p>

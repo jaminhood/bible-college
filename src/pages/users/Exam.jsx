@@ -53,14 +53,6 @@ export default function Exam ()
 
   const handleAnswer = async (questionId, answerId) =>
   {
-    // const ids = {
-    //   user: user.matricNumber,
-    //   examId: currentExam.id,
-    //   questionId,
-    //   answerId,
-    //   type: `option`,
-    // };
-    // await updateAnswer(ids);
     if (answers.find(answer => answer.questionId === questionId))
     {
       const tmpAnswer = answers.map(ans =>
@@ -87,21 +79,34 @@ export default function Exam ()
 
   const handleFinished = () =>
   {
-    submitExam({ user: user.matricNumber, examId: currentExam.id });
+    console.log(answers)
+    // submitExam({ user: user.matricNumber, examId: currentExam.id });
     setExamEnd(!examEnd);
-    setTimeout(timeout, 2000);
+    // setTimeout(timeout, 2000);
   };
 
   const handleEssay = async (questionId, essay) =>
   {
-    const ids = {
-      user: user.matricNumber,
-      examId: currentExam.id,
-      questionId,
-      essayContent: essay,
-      type: `essay`,
-    };
-    await updateAnswer(ids);
+    if (answers.find(answer => answer.questionId === questionId))
+    {
+      const tmpAnswer = answers.map(ans =>
+      {
+        if (ans.questionId === questionId)
+        {
+          ans.essayContent = essay
+        }
+        return ans
+      })
+      setAnswers(tmpAnswer)
+    } else
+    {
+      const ids = {
+        questionId,
+        essayContent: essay,
+        type: `essay`,
+      };
+      setAnswers([...answers, ids])
+    }
   };
 
   const [time, setTime] = useState(2400);
