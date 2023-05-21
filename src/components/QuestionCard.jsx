@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { FormGroup, ListGroup, ListGroupItem } from "reactstrap";
-import { getStorage } from "../helpers";
 
-const QuestionCard = ({ answers, examId, question, handleAnswer, handleEssay }) =>
+const QuestionCard = ({ answers, question, handleAnswer, handleEssay }) =>
 {
   const [essay, setEssay] = useState(``);
   const [answered, setAnswered] = useState(``);

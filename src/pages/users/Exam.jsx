@@ -79,8 +79,36 @@ export default function Exam ()
 
   const handleFinished = () =>
   {
-    console.log(answers)
-    // submitExam({ user: user.matricNumber, examId: currentExam.id });
+    const score = {
+      user: user.matricNumber,
+      examId: currentExam.id,
+      objective: 0,
+      essay: answers
+        .filter((answer) => answer.type === `essay`)
+        .map((answer) => answer.essayContent)[0],
+    };
+
+    const options = answers.filter(
+      (answer) => answer.type === `option`
+    ).forEach(option =>
+    {
+      currentExam.questions.forEach((question) =>
+      {
+        if (question.id === option.questionId)
+        {
+          question.options &&
+            question.options.forEach((opt) =>
+            {
+              if (opt.id === option.answerId && opt.isCorrect === true)
+              {
+                score.objective += 1;
+              }
+            });
+        }
+      })
+    })
+
+    submitExam(score);
     setExamEnd(!examEnd);
     // setTimeout(timeout, 2000);
   };
@@ -150,7 +178,6 @@ export default function Exam ()
                         currentExam.questions.map((question) => (
                           <QuestionCard
                             question={question}
-                            examId={currentExam.id}
                             key={question.id}
                             answers={answers}
                             handleAnswer={handleAnswer}
