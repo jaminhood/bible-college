@@ -1,11 +1,11 @@
 import
-  {
-    addDoc,
-    collection,
-    deleteDoc,
-    doc,
-    updateDoc,
-  } from "firebase/firestore";
+{
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "./config/firebase";
 
 export const getStorage = (key) =>
@@ -139,76 +139,6 @@ export const updateAnswer = async (input) =>
 
 export const submitExam = async (input) =>
 {
-  const { user, examId } = input;
-  const answers = getStorage(`answers`);
-
-  const newAnswers = answers.filter(
-    (answer) => answer.user === user && answer.examId === examId
-  );
-
-  const score = {
-    objective: 0,
-    essay: newAnswers
-      .filter((answer) => answer.type === `essay`)
-      .map((answer) => answer.answer)[0],
-  };
-
-  const newOptions = newAnswers.filter((answer) => answer.type === `option`);
-  newOptions.forEach((option) =>
-  {
-    getStorage(`exams`).forEach((exam) =>
-    {
-      if (exam.id === option.examId)
-      {
-        exam.questions.forEach((question) =>
-        {
-          if (question.id === option.questionId)
-          {
-            question.options &&
-              question.options.forEach((opt) =>
-              {
-                if (opt.id === option.answer && opt.isCorrect === true)
-                {
-                  score.objective += 1;
-                }
-              });
-          }
-        });
-      }
-    });
-  });
-  if (
-    getStorage(`scores`).filter(
-      (sc) => sc.user === user && sc.examId === examId
-    ).length > 0
-  )
-  {
-    const tmpScores = getStorage(`scores`).map((sc) =>
-    {
-      if (sc.user === user && sc.examId === examId)
-      {
-        sc.score = score;
-      }
-      return sc;
-    });
-
-    await updateDoc(
-      doc(
-        db,
-        `scores`,
-        getStorage(`scores`).find(
-          (sc) => sc.user === user && sc.examId === examId
-        ).id
-      ),
-      {
-        score,
-      }
-    ).then(() => setStorage(`scores`, tmpScores));
-  } else
-  {
-    const tmpScores = [...getStorage(`scores`), { user, examId, score }];
-    await addDoc(collection(db, `scores`), { user, examId, score }).then(() =>
-      setStorage(`scores`, tmpScores)
-    );
-  }
+  console.log(input)
+  // await addDoc(collection(db, `scores`), input);
 };

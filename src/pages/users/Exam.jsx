@@ -88,7 +88,7 @@ export default function Exam ()
         .map((answer) => answer.essayContent)[0],
     };
 
-    const options = answers.filter(
+    answers.filter(
       (answer) => answer.type === `option`
     ).forEach(option =>
     {
