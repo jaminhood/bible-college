@@ -1,9 +1,8 @@
 import { Table } from "reactstrap";
 import DashboardContent from "./DashboardContent";
-import { students } from "../../redux/usersSlice";
 import { nanoid } from "@reduxjs/toolkit";
 import { useEffect, useState } from "react";
-import { collection, getDocs, onSnapshot, query } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
 const Students = () =>
@@ -47,22 +46,22 @@ const Students = () =>
   const display = studentsList.map((student) =>
   {
     const id = nanoid();
-    const name = student.name;
-    const matricNumber = student.matricNumber;
+    const name = student?.name;
+    const matricNumber = student?.matricNumber;
     const exams = [];
-    scoresList.forEach((score) =>
+    scoresList?.forEach((score) =>
     {
-      if (score.user === student.matricNumber)
+      if (score.user === student?.matricNumber)
       {
         examsList.forEach((exam) =>
         {
-          if (exam.id === score.examId)
+          if (exam.id === score?.examId)
           {
             exams.push({
               id: nanoid(),
-              exam: exam.title,
-              objective: score.objective,
-              essay: score.essay,
+              exam: exam?.title,
+              objective: score?.objective,
+              essay: score?.essay,
             });
           }
         });

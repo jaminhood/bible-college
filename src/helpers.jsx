@@ -137,8 +137,9 @@ export const updateAnswer = async (input) =>
   }
 };
 
-export const submitExam = async (input) =>
+export const submitExam = async (input, answers) =>
 {
+  await addDoc(collection(db, `answers`), answers);
   await addDoc(collection(db, `scores`), {
     ...input,
     essay: input.essay ? input.essay : ``

@@ -81,6 +81,12 @@ export default function Exam ()
         .map((answer) => answer.essayContent)[0],
     };
 
+    const answersArray = {
+      user: user.matricNumber,
+      examId: id,
+      answers
+    };
+
     answers.filter(
       (answer) => answer.type === `option`
     ).forEach(option =>
@@ -101,7 +107,7 @@ export default function Exam ()
       })
     })
 
-    submitExam(score);
+    submitExam(score,answersArray);
     setExamEnd(!examEnd);
     setTimeout(timeout, 2000);
   };
