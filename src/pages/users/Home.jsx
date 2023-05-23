@@ -73,7 +73,6 @@ export default function Home() {
             <Row>
               <Col md={6}>
                 <h1 className="display-3 mb-3">Bible College Examination</h1>
-                <p className="lead mb-3">GST102: Philosophy</p>
                 <p>
                   <strong>Note:</strong> Exams are to be submitted on or before
                   40 minutes after you press the start button, you are expected
