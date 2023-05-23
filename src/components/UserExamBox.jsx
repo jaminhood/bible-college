@@ -25,12 +25,12 @@ const UserExamBox = ({ exam }) => {
 
   useEffect(() => {
     getExams();
-  }, [userScores]);
+  }, []);
 
   let done = false;
 
   const userScore = userScores.find(
-    (sc) => sc.userId === user.id && sc.examId === exam.id
+    (sc) => sc.user === user.matricNumber && sc.examId === exam.id
   );
 
   if (userScore) {
