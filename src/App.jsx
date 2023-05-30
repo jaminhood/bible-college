@@ -1,13 +1,18 @@
-import './styles/App.scss'
-import Pages from './pages/Pages'
+import Pages from './pages/Pages';
+import './styles/App.scss';
 
-function App ()
-{
-  return (
-    <>
-      <Pages/>
-    </>
-  )
+/**
+ * App - RCBC
+ *
+ * Main App component
+ * @returns JSX
+ */
+function App() {
+	return (
+		<>
+			<Pages />
+		</>
+	);
 }
 
-export default App
+export default App;
