@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "bible-college-2f710"
-  }
+    "default": "rcbc1-9967b",
+    "first": "rcbc1-9967b"
+  },
+  "targets": {},
+  "etags": {}
 }
