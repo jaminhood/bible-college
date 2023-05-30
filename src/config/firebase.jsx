@@ -1,3 +1,3 @@
-import { app } from './rcbc2';
-export { db } from './rcbc2';
+import { app } from './rcbc3';
+export { db } from './rcbc3';
 export default app;

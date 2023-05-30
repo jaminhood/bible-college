@@ -1,7 +1,9 @@
 {
   "projects": {
-    "default": "rcbc1-9967b",
-    "first": "rcbc1-9967b"
+    "default": "rcbc3-b6368",
+    "first": "rcbc1-9967b",
+    "second": "rcbc2-82194",
+    "third": "rcbc3-b6368"
   },
   "targets": {},
   "etags": {}
