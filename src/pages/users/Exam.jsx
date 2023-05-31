@@ -1,205 +1,202 @@
-import { Page, QuestionCard } from "../../components";
-import { BiPaperPlane } from "react-icons/bi";
-import { Col, Container, Row } from "reactstrap";
-import bg from "../../assets/imgs/bg.jpg";
-import { motion } from "framer-motion";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { formatTime, submitExam } from "../../helpers";
-import { activeUser } from "../../redux/usersSlice";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../../config/firebase";
+import { doc, getDoc } from 'firebase/firestore';
+import { motion } from 'framer-motion';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { BiPaperPlane } from 'react-icons/bi';
+import { useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Col, Container, Row } from 'reactstrap';
+import bg from '../../assets/imgs/bg.jpg';
+import { Page, QuestionCard } from '../../components';
+import { db } from '../../config/firebase';
+import { formatTime, submitExam } from '../../helpers';
+import { activeUser } from '../../redux/usersSlice';
 
 export default function Exam() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const user = useSelector(activeUser);
+	const { id } = useParams();
+	const navigate = useNavigate();
+	const user = useSelector(activeUser);
 
-  useEffect(() => {
-    user.role === undefined
-      ? navigate(`/`)
-      : user.role === `student`
-      ? false
-      : navigate(`/admin/dashboard`);
-  });
+	useEffect(() => {
+		user.role === undefined
+			? navigate(`/`)
+			: user.role === `student`
+			? false
+			: navigate(`/admin/dashboard`);
+	});
 
-  const [currentExam, setCurrentExam] = useState(``);
-  const [answers, setAnswers] = useState([]);
-  const [timerEnd, setTimerEnd] = useState(false);
-  const [examEnd, setExamEnd] = useState(false);
+	const [currentExam, setCurrentExam] = useState(``);
+	const [answers, setAnswers] = useState([]);
+	const [timerEnd, setTimerEnd] = useState(false);
+	const [examEnd, setExamEnd] = useState(false);
 
-  const getStore = async () =>
-    await getDoc(doc(db, `exams`, id)).then((data) =>
-      setCurrentExam(data.data())
-    );
+	const getStore = useCallback(
+		async () =>
+			await getDoc(doc(db, `exams`, id)).then(data =>
+				setCurrentExam(data.data()),
+			),
+		[],
+	);
 
-  useEffect(() => {
-    getStore();
-  }, []);
+	useEffect(() => {
+		getStore();
+	}, []);
 
-  const handleAnswer = async (questionId, answerId) => {
-    if (answers.find((answer) => answer.questionId === questionId)) {
-      const tmpAnswer = answers.map((ans) => {
-        if (ans.questionId === questionId) {
-          ans.answerId = answerId;
-        }
-        return ans;
-      });
-      setAnswers(tmpAnswer);
-    } else {
-      const ids = {
-        questionId,
-        answerId,
-        type: `option`,
-      };
-      setAnswers([...answers, ids]);
-    }
-  };
+	const handleAnswer = useCallback((questionId, answerId) => {
+		if (answers.find(answer => answer.questionId === questionId)) {
+			const tmpAnswer = answers.map(ans => {
+				if (ans.questionId === questionId) {
+					ans.answerId = answerId;
+				}
+				return ans;
+			});
+			setAnswers(tmpAnswer);
+		} else {
+			const ids = {
+				questionId,
+				answerId,
+				type: `option`,
+			};
+			setAnswers([...answers, ids]);
+		}
+	}, []);
 
-  const timeout = () => navigate(`/`);
+	const timeout = () => navigate(`/`);
 
-  const handleFinished = () => {
-    const score = {
-      user: user.matricNumber,
-      examId: id,
-      objective: 0,
-      essay: answers
-        .filter((answer) => answer.type === `essay`)
-        .map((answer) => answer.essayContent)[0],
-    };
+	const handleFinished = useCallback(() => {
+		const score = {
+			user: user.matricNumber,
+			examId: id,
+			objective: 0,
+			essay: answers
+				.filter(answer => answer.type === `essay`)
+				.map(answer => answer.essayContent)[0],
+		};
 
-    const answersArray = {
-      user: user.matricNumber,
-      examId: id,
-      answers,
-    };
+		answers
+			.filter(answer => answer.type === `option`)
+			.forEach(option => {
+				currentExam.questions.forEach(question => {
+					if (question.id === option.questionId) {
+						question.options &&
+							question.options.forEach(opt => {
+								if (opt.id === option.answerId && opt.isCorrect === true) {
+									score.objective += 1;
+								}
+							});
+					}
+				});
+			});
 
-    answers
-      .filter((answer) => answer.type === `option`)
-      .forEach((option) => {
-        currentExam.questions.forEach((question) => {
-          if (question.id === option.questionId) {
-            question.options &&
-              question.options.forEach((opt) => {
-                if (opt.id === option.answerId && opt.isCorrect === true) {
-                  score.objective += 1;
-                }
-              });
-          }
-        });
-      });
+		submitExam(score);
+		setExamEnd(!examEnd);
+		setTimeout(timeout, 2000);
+	}, []);
 
-    submitExam(score, answersArray);
-    setExamEnd(!examEnd);
-    setTimeout(timeout, 2000);
-  };
+	const handleEssay = useCallback((questionId, essay) => {
+		if (answers.find(answer => answer.questionId === questionId)) {
+			const tmpAnswer = answers.map(ans => {
+				if (ans.questionId === questionId) {
+					ans.essayContent = essay;
+				}
+				return ans;
+			});
+			setAnswers(tmpAnswer);
+		} else {
+			const ids = {
+				questionId,
+				essayContent: essay,
+				type: `essay`,
+			};
+			setAnswers([...answers, ids]);
+		}
+	}, []);
 
-  const handleEssay = async (questionId, essay) => {
-    if (answers.find((answer) => answer.questionId === questionId)) {
-      const tmpAnswer = answers.map((ans) => {
-        if (ans.questionId === questionId) {
-          ans.essayContent = essay;
-        }
-        return ans;
-      });
-      setAnswers(tmpAnswer);
-    } else {
-      const ids = {
-        questionId,
-        essayContent: essay,
-        type: `essay`,
-      };
-      setAnswers([...answers, ids]);
-    }
-  };
+	const [time, setTime] = useState(2400);
+	const timer = useRef();
 
-  const [time, setTime] = useState(2400);
-  const timer = useRef();
+	useEffect(() => {
+		timer.current = setInterval(() => {
+			setTime(prev => prev - 1);
+		}, 1000);
+		return () => clearInterval(timer.current);
+	}, []);
 
-  useEffect(() => {
-    timer.current = setInterval(() => {
-      setTime((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer.current);
-  }, []);
+	useEffect(() => {
+		if (time <= 0) {
+			clearInterval(timer.current);
+			setTimerEnd(!timerEnd);
+		}
+	}, [time]);
 
-  useEffect(() => {
-    if (time <= 0) {
-      clearInterval(timer.current);
-      setTimerEnd(!timerEnd);
-    }
-  }, [time]);
-
-  return (
-    <>
-      <Page title={`Exam`}>
-        <section
-          className="exam-section text-light d-flex justify-content-center align-items-center"
-          style={{ backgroundImage: `url(${bg})` }}
-        >
-          <Container>
-            <Row>
-              <Col md={6} lg={10} className="offset-md-3 offset-lg-1">
-                <div className="form-box w-100 bg-light text-dark p-3 rounded-3">
-                  {examEnd === false ? (
-                    <div className="card">
-                      <div className="card-header text-center">
-                        <p className="display-6 m-0">{currentExam.title}</p>
-                      </div>
-                      {currentExam.questions !== undefined &&
-                        currentExam.questions.map((question) => (
-                          <QuestionCard
-                            question={question}
-                            key={question.id}
-                            answers={answers}
-                            handleAnswer={handleAnswer}
-                            handleEssay={handleEssay}
-                          />
-                        ))}
-                      <div className="card-footer">
-                        <div className="w-100 d-flex justify-content-end align-items-center">
-                          <motion.button
-                            whileTap={{ scale: 1.2 }}
-                            className="btn btn-success btn-md w-100"
-                            onClick={handleFinished}
-                          >
-                            Finish
-                            <BiPaperPlane className="icon ms-3" />
-                          </motion.button>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="card">
-                      <div className="card-body text-center">
-                        <h3 className="display-6">
-                          Examination Completed Successfully
-                        </h3>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </Col>
-            </Row>
-          </Container>
-        </section>
-        {examEnd === false && (
-          <div
-            className={`timer ${
-              timerEnd ? `bg-danger` : `bg-success`
-            } p-1 text-light text-center`}
-          >
-            <p className="lead m-0">
-              {timerEnd ? (
-                `Time's Up, Please Submit`
-              ) : (
-                <span>{formatTime(time)}</span>
-              )}
-            </p>
-          </div>
-        )}
-      </Page>
-    </>
-  );
+	return (
+		<>
+			<Page title={`Exam`}>
+				<section
+					className='exam-section text-light d-flex justify-content-center align-items-center'
+					style={{ backgroundImage: `url(${bg})` }}>
+					<Container>
+						<Row>
+							<Col
+								md={6}
+								lg={10}
+								className='offset-md-3 offset-lg-1'>
+								<div className='form-box w-100 bg-light text-dark p-3 rounded-3'>
+									{examEnd === false ? (
+										<div className='card'>
+											<div className='card-header text-center'>
+												<p className='display-6 m-0'>{currentExam.title}</p>
+											</div>
+											{currentExam.questions !== undefined &&
+												currentExam.questions.map(question => (
+													<QuestionCard
+														question={question}
+														key={question.id}
+														answers={answers}
+														handleAnswer={handleAnswer}
+														handleEssay={handleEssay}
+													/>
+												))}
+											<div className='card-footer'>
+												<div className='w-100 d-flex justify-content-end align-items-center'>
+													<motion.button
+														whileTap={{ scale: 1.2 }}
+														className='btn btn-success btn-md w-100'
+														onClick={handleFinished}>
+														Finish
+														<BiPaperPlane className='icon ms-3' />
+													</motion.button>
+												</div>
+											</div>
+										</div>
+									) : (
+										<div className='card'>
+											<div className='card-body text-center'>
+												<h3 className='display-6'>
+													Examination Completed Successfully
+												</h3>
+											</div>
+										</div>
+									)}
+								</div>
+							</Col>
+						</Row>
+					</Container>
+				</section>
+				{examEnd === false && (
+					<div
+						className={`timer ${
+							timerEnd ? `bg-danger` : `bg-success`
+						} p-1 text-light text-center`}>
+						<p className='lead m-0'>
+							{timerEnd ? (
+								`Time's Up, Please Submit`
+							) : (
+								<span>{formatTime(time)}</span>
+							)}
+						</p>
+					</div>
+				)}
+			</Page>
+		</>
+	);
 }
