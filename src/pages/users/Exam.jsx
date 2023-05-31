@@ -6,31 +6,22 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import
-{
-  formatTime,
-  getStorage,
-  setStorage,
-  submitExam,
-  updateAnswer,
-} from "../../helpers";
+import { formatTime, submitExam } from "../../helpers";
 import { activeUser } from "../../redux/usersSlice";
-import { collection, doc, getDoc, onSnapshot, query } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-export default function Exam ()
-{
+export default function Exam() {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = useSelector(activeUser);
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     user.role === undefined
       ? navigate(`/`)
       : user.role === `student`
-        ? false
-        : navigate(`/admin/dashboard`);
+      ? false
+      : navigate(`/admin/dashboard`);
   });
 
   const [currentExam, setCurrentExam] = useState(``);
@@ -39,39 +30,36 @@ export default function Exam ()
   const [examEnd, setExamEnd] = useState(false);
 
   const getStore = async () =>
-    await getDoc(doc(db, `exams`, id))
-      .then(data => setCurrentExam(data.data()))
+    await getDoc(doc(db, `exams`, id)).then((data) =>
+      setCurrentExam(data.data())
+    );
 
-  useEffect(() => { getStore() }, []);
+  useEffect(() => {
+    getStore();
+  }, []);
 
-  const handleAnswer = async (questionId, answerId) =>
-  {
-    if (answers.find(answer => answer.questionId === questionId))
-    {
-      const tmpAnswer = answers.map(ans =>
-      {
-        if (ans.questionId === questionId)
-        {
-          ans.answerId = answerId
+  const handleAnswer = async (questionId, answerId) => {
+    if (answers.find((answer) => answer.questionId === questionId)) {
+      const tmpAnswer = answers.map((ans) => {
+        if (ans.questionId === questionId) {
+          ans.answerId = answerId;
         }
-        return ans
-      })
-      setAnswers(tmpAnswer)
-    } else
-    {
+        return ans;
+      });
+      setAnswers(tmpAnswer);
+    } else {
       const ids = {
         questionId,
         answerId,
         type: `option`,
       };
-      setAnswers([...answers, ids])
+      setAnswers([...answers, ids]);
     }
   };
 
   const timeout = () => navigate(`/`);
 
-  const handleFinished = () =>
-  {
+  const handleFinished = () => {
     const score = {
       user: user.matricNumber,
       examId: id,
@@ -84,74 +72,60 @@ export default function Exam ()
     const answersArray = {
       user: user.matricNumber,
       examId: id,
-      answers
+      answers,
     };
 
-    answers.filter(
-      (answer) => answer.type === `option`
-    ).forEach(option =>
-    {
-      currentExam.questions.forEach((question) =>
-      {
-        if (question.id === option.questionId)
-        {
-          question.options &&
-            question.options.forEach((opt) =>
-            {
-              if (opt.id === option.answerId && opt.isCorrect === true)
-              {
-                score.objective += 1;
-              }
-            });
-        }
-      })
-    })
+    answers
+      .filter((answer) => answer.type === `option`)
+      .forEach((option) => {
+        currentExam.questions.forEach((question) => {
+          if (question.id === option.questionId) {
+            question.options &&
+              question.options.forEach((opt) => {
+                if (opt.id === option.answerId && opt.isCorrect === true) {
+                  score.objective += 1;
+                }
+              });
+          }
+        });
+      });
 
-    submitExam(score,answersArray);
+    submitExam(score, answersArray);
     setExamEnd(!examEnd);
     setTimeout(timeout, 2000);
   };
 
-  const handleEssay = async (questionId, essay) =>
-  {
-    if (answers.find(answer => answer.questionId === questionId))
-    {
-      const tmpAnswer = answers.map(ans =>
-      {
-        if (ans.questionId === questionId)
-        {
-          ans.essayContent = essay
+  const handleEssay = async (questionId, essay) => {
+    if (answers.find((answer) => answer.questionId === questionId)) {
+      const tmpAnswer = answers.map((ans) => {
+        if (ans.questionId === questionId) {
+          ans.essayContent = essay;
         }
-        return ans
-      })
-      setAnswers(tmpAnswer)
-    } else
-    {
+        return ans;
+      });
+      setAnswers(tmpAnswer);
+    } else {
       const ids = {
         questionId,
         essayContent: essay,
         type: `essay`,
       };
-      setAnswers([...answers, ids])
+      setAnswers([...answers, ids]);
     }
   };
 
   const [time, setTime] = useState(2400);
   const timer = useRef();
 
-  useEffect(() =>
-  {
-    timer.current = setInterval(() =>
-    {
+  useEffect(() => {
+    timer.current = setInterval(() => {
       setTime((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(timer.current);
   }, []);
 
-  useEffect(() =>
-  {
-    if (time <= 0)
-    {
+  useEffect(() => {
+    if (time <= 0) {
       clearInterval(timer.current);
       setTimerEnd(!timerEnd);
     }
@@ -212,8 +186,9 @@ export default function Exam ()
         </section>
         {examEnd === false && (
           <div
-            className={`timer ${timerEnd ? `bg-danger` : `bg-success`
-              } p-1 text-light text-center`}
+            className={`timer ${
+              timerEnd ? `bg-danger` : `bg-success`
+            } p-1 text-light text-center`}
           >
             <p className="lead m-0">
               {timerEnd ? (

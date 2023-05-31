@@ -9,8 +9,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../config/firebase";
 
-const ExamsList = () =>
-{
+const ExamsList = () => {
   const navigate = useNavigate();
 
   const user = useSelector(activeUser);
@@ -18,23 +17,25 @@ const ExamsList = () =>
 
   const getExams = async () =>
     await getDocs(collection(db, `exams`))
-      .then(data => data.docs.map(item =>
-      {
-        const data = item.data()
-        data.id = item.id
-        return (data)
-      }))
-      .then(data => setAllExams(data))
+      .then((data) =>
+        data.docs.map((item) => {
+          const data = item.data();
+          data.id = item.id;
+          return data;
+        })
+      )
+      .then((data) => setAllExams(data));
 
-  useEffect(() => { getExams() }, []);
+  useEffect(() => {
+    getExams();
+  }, []);
 
-  useEffect(() =>
-  {
+  useEffect(() => {
     user.role === undefined
       ? navigate(`/`)
       : user.role === `student`
-        ? false
-        : navigate(`/admin/dashboard`);
+      ? false
+      : navigate(`/admin/dashboard`);
   });
 
   const flexSpaceCls = `d-flex justify-content-between align-items-center`;
