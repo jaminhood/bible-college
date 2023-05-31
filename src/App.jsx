@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import Pages from './pages/Pages';
 import './styles/App.scss';
 
@@ -14,17 +13,6 @@ function App() {
 			<Pages />
 		</>
 	);
-=======
-import "./styles/App.scss";
-import Pages from "./pages/Pages";
-
-function App() {
-  return (
-    <>
-      <Pages />
-    </>
-  );
->>>>>>> 23b8c8aa9c50b516fe285eaeb1908838391a81c3
 }
 
 export default App;
