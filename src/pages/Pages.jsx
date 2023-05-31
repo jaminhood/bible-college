@@ -10,7 +10,6 @@ import Exam from './users/Exam';
 import ExamsList from './users/ExamsList';
 import Home from './users/Home';
 
-<<<<<<< HEAD
 /**
  * Pages - RCBC
  *
@@ -74,30 +73,4 @@ export default function Pages() {
 			</BrowserRouter>
 		</>
 	);
-=======
-export default function Pages() {
-  return (
-    <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/">
-            <Route index element={<Home />} />
-            <Route path="logout" element={<Logout />} />
-            <Route path="exam/:id" element={<Exam />} />
-            <Route path="exam-list" element={<ExamsList />} />
-            <Route path="admin">
-              <Route path="login" element={<Admin />} />
-              <Route path="logout" element={<Logout />} />
-              <Route path="create" element={<CreateCourse />} />
-              <Route path="students" element={<Students />} />
-              <Route path="exam/:id" element={<Course />} />
-              <Route path="dashboard" element={<Welcome />} />
-            </Route>
-          </Route>
-          <Route path="/*" element={<Error />} />
-        </Routes>
-      </BrowserRouter>
-    </>
-  );
->>>>>>> 23b8c8aa9c50b516fe285eaeb1908838391a81c3
 }
