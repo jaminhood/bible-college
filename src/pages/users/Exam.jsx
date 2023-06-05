@@ -1,81 +1,80 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BiPaperPlane } from 'react-icons/bi';
 import { useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Col, Container, Row } from 'reactstrap';
 import bg from '../../assets/imgs/bg.jpg';
 import { Page, QuestionCard } from '../../components';
+import { ExamTimer } from '../../components/ExamTimer';
 import { db } from '../../config/firebase';
-import { formatTime, submitExam } from '../../helpers';
+import { submitExam } from '../../helpers';
 import { activeUser } from '../../redux/usersSlice';
 
 export default function Exam() {
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const user = useSelector(activeUser);
+
+	const [store, setStore] = useState({
+		currentExam: {},
+		answers: [],
+		examEnd: false,
+		user: useSelector(activeUser),
+	});
 
 	useEffect(() => {
-		user.role === undefined
+		store.user.role === undefined
 			? navigate(`/`)
-			: user.role === `student`
+			: store.user.role === `student`
 			? false
 			: navigate(`/admin/dashboard`);
 	});
 
-	const [currentExam, setCurrentExam] = useState(``);
-	const [answers, setAnswers] = useState([]);
-	const [timerEnd, setTimerEnd] = useState(false);
-	const [examEnd, setExamEnd] = useState(false);
-
-	const getStore = useCallback(
-		async () =>
-			await getDoc(doc(db, `exams`, id)).then(data =>
-				setCurrentExam(data.data()),
-			),
-		[],
-	);
+	const getStore = async () =>
+		await getDoc(doc(db, `exams`, id)).then(data =>
+			setStore({ ...store, currentExam: data.data() }),
+		);
 
 	useEffect(() => {
 		getStore();
 	}, []);
 
-	const handleAnswer = useCallback((questionId, answerId) => {
-		if (answers.find(answer => answer.questionId === questionId)) {
-			const tmpAnswer = answers.map(ans => {
+	const handleAnswer = (questionId, answerId) => {
+		if (store.answers.find(answer => answer.questionId === questionId)) {
+			const tmpAnswer = store.answers.map(ans => {
 				if (ans.questionId === questionId) {
 					ans.answerId = answerId;
 				}
 				return ans;
 			});
-			setAnswers(tmpAnswer);
+			setStore({ ...store, answers: tmpAnswer });
 		} else {
 			const ids = {
 				questionId,
 				answerId,
 				type: `option`,
 			};
-			setAnswers([...answers, ids]);
+			setStore({ ...store, answers: [...store.answers, ids] });
 		}
-	}, []);
+	};
 
 	const timeout = () => navigate(`/`);
 
-	const handleFinished = useCallback(() => {
+	const handleFinished = () => {
 		const score = {
-			user: user.matricNumber,
+			user: store.user.matricNumber,
 			examId: id,
 			objective: 0,
-			essay: answers
+			essay: store.answers
 				.filter(answer => answer.type === `essay`)
 				.map(answer => answer.essayContent)[0],
 		};
 
-		answers
+		store.answers
 			.filter(answer => answer.type === `option`)
 			.forEach(option => {
-				currentExam.questions.forEach(question => {
+				store.currentExam.questions.forEach(question => {
 					if (question.id === option.questionId) {
 						question.options &&
 							question.options.forEach(opt => {
@@ -88,49 +87,32 @@ export default function Exam() {
 			});
 
 		submitExam(score);
-		setExamEnd(!examEnd);
+		setStore({ ...store, examEnd: !store.examEnd });
 		setTimeout(timeout, 2000);
-	}, []);
+	};
 
-	const handleEssay = useCallback((questionId, essay) => {
-		if (answers.find(answer => answer.questionId === questionId)) {
-			const tmpAnswer = answers.map(ans => {
+	const handleEssay = (questionId, essay) => {
+		if (store.answers.find(answer => answer.questionId === questionId)) {
+			const tmpAnswer = store.answers.map(ans => {
 				if (ans.questionId === questionId) {
 					ans.essayContent = essay;
 				}
 				return ans;
 			});
-			setAnswers(tmpAnswer);
+			setStore({ ...store, answers: tmpAnswer });
 		} else {
 			const ids = {
 				questionId,
 				essayContent: essay,
 				type: `essay`,
 			};
-			setAnswers([...answers, ids]);
+			setStore({ ...store, answers: [...store.answers, ids] });
 		}
-	}, []);
-
-	const [time, setTime] = useState(2400);
-	const timer = useRef();
-
-	useEffect(() => {
-		timer.current = setInterval(() => {
-			setTime(prev => prev - 1);
-		}, 1000);
-		return () => clearInterval(timer.current);
-	}, []);
-
-	useEffect(() => {
-		if (time <= 0) {
-			clearInterval(timer.current);
-			setTimerEnd(!timerEnd);
-		}
-	}, [time]);
+	};
 
 	return (
 		<>
-			<Page title={`Exam`}>
+			<Page title='Exam'>
 				<section
 					className='exam-section text-light d-flex justify-content-center align-items-center'
 					style={{ backgroundImage: `url(${bg})` }}>
@@ -141,17 +123,19 @@ export default function Exam() {
 								lg={10}
 								className='offset-md-3 offset-lg-1'>
 								<div className='form-box w-100 bg-light text-dark p-3 rounded-3'>
-									{examEnd === false ? (
+									{store.examEnd === false ? (
 										<div className='card'>
 											<div className='card-header text-center'>
-												<p className='display-6 m-0'>{currentExam.title}</p>
+												<p className='display-6 m-0'>
+													{store.currentExam.title}
+												</p>
 											</div>
-											{currentExam.questions !== undefined &&
-												currentExam.questions.map(question => (
+											{store.currentExam.questions !== undefined &&
+												store.currentExam.questions.map(question => (
 													<QuestionCard
 														question={question}
 														key={question.id}
-														answers={answers}
+														answers={store.answers}
 														handleAnswer={handleAnswer}
 														handleEssay={handleEssay}
 													/>
@@ -182,20 +166,7 @@ export default function Exam() {
 						</Row>
 					</Container>
 				</section>
-				{examEnd === false && (
-					<div
-						className={`timer ${
-							timerEnd ? `bg-danger` : `bg-success`
-						} p-1 text-light text-center`}>
-						<p className='lead m-0'>
-							{timerEnd ? (
-								`Time's Up, Please Submit`
-							) : (
-								<span>{formatTime(time)}</span>
-							)}
-						</p>
-					</div>
-				)}
+				<ExamTimer examEnd={store.examEnd} />
 			</Page>
 		</>
 	);
